@@ -1,0 +1,195 @@
+CREATE TABLE IF NOT EXISTS books (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  abbreviation TEXT NOT NULL,
+  testament TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS verses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  book_id INTEGER NOT NULL,
+  chapter INTEGER NOT NULL,
+  verse INTEGER NOT NULL,
+  text TEXT NOT NULL,
+  FOREIGN KEY (book_id) REFERENCES books(id)
+);
+
+CREATE TABLE IF NOT EXISTS popular_verses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  verse_id INTEGER NOT NULL,
+  category TEXT NOT NULL,
+  FOREIGN KEY (verse_id) REFERENCES verses(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_verses_book ON verses(book_id);
+CREATE INDEX IF NOT EXISTS idx_verses_chapter ON verses(book_id, chapter);
+CREATE INDEX IF NOT EXISTS idx_popular_category ON popular_verses(category);
+
+INSERT INTO books VALUES (1, '창세기', '창', 'old');
+INSERT INTO books VALUES (2, '출애굽기', '출', 'old');
+INSERT INTO books VALUES (3, '레위기', '레', 'old');
+INSERT INTO books VALUES (4, '민수기', '민', 'old');
+INSERT INTO books VALUES (5, '신명기', '신', 'old');
+INSERT INTO books VALUES (6, '여호수아', '수', 'old');
+INSERT INTO books VALUES (7, '사사기', '삿', 'old');
+INSERT INTO books VALUES (8, '룻기', '룻', 'old');
+INSERT INTO books VALUES (9, '사무엘상', '삼상', 'old');
+INSERT INTO books VALUES (10, '사무엘하', '삼하', 'old');
+INSERT INTO books VALUES (11, '열왕기상', '왕상', 'old');
+INSERT INTO books VALUES (12, '열왕기하', '왕하', 'old');
+INSERT INTO books VALUES (13, '역대상', '대상', 'old');
+INSERT INTO books VALUES (14, '역대하', '대하', 'old');
+INSERT INTO books VALUES (15, '에스라', '스', 'old');
+INSERT INTO books VALUES (16, '느헤미야', '느', 'old');
+INSERT INTO books VALUES (17, '에스더', '에', 'old');
+INSERT INTO books VALUES (18, '욥기', '욥', 'old');
+INSERT INTO books VALUES (19, '시편', '시', 'old');
+INSERT INTO books VALUES (20, '잠언', '잠', 'old');
+INSERT INTO books VALUES (21, '전도서', '전', 'old');
+INSERT INTO books VALUES (22, '아가', '아', 'old');
+INSERT INTO books VALUES (23, '이사야', '사', 'old');
+INSERT INTO books VALUES (24, '예레미야', '렘', 'old');
+INSERT INTO books VALUES (25, '예레미야애가', '애', 'old');
+INSERT INTO books VALUES (26, '에스겔', '겔', 'old');
+INSERT INTO books VALUES (27, '다니엘', '단', 'old');
+INSERT INTO books VALUES (28, '호세아', '호', 'old');
+INSERT INTO books VALUES (29, '요엘', '욜', 'old');
+INSERT INTO books VALUES (30, '아모스', '암', 'old');
+INSERT INTO books VALUES (31, '오바댜', '옵', 'old');
+INSERT INTO books VALUES (32, '요나', '욘', 'old');
+INSERT INTO books VALUES (33, '미가', '미', 'old');
+INSERT INTO books VALUES (34, '나훔', '나', 'old');
+INSERT INTO books VALUES (35, '하박국', '합', 'old');
+INSERT INTO books VALUES (36, '스바냐', '습', 'old');
+INSERT INTO books VALUES (37, '학개', '학', 'old');
+INSERT INTO books VALUES (38, '스가랴', '슥', 'old');
+INSERT INTO books VALUES (39, '말라기', '말', 'old');
+INSERT INTO books VALUES (40, '마태복음', '마', 'new');
+INSERT INTO books VALUES (41, '마가복음', '막', 'new');
+INSERT INTO books VALUES (42, '누가복음', '눅', 'new');
+INSERT INTO books VALUES (43, '요한복음', '요', 'new');
+INSERT INTO books VALUES (44, '사도행전', '행', 'new');
+INSERT INTO books VALUES (45, '로마서', '롬', 'new');
+INSERT INTO books VALUES (46, '고린도전서', '고전', 'new');
+INSERT INTO books VALUES (47, '고린도후서', '고후', 'new');
+INSERT INTO books VALUES (48, '갈라디아서', '갈', 'new');
+INSERT INTO books VALUES (49, '에베소서', '엡', 'new');
+INSERT INTO books VALUES (50, '빌립보서', '빌', 'new');
+INSERT INTO books VALUES (51, '골로새서', '골', 'new');
+INSERT INTO books VALUES (52, '데살로니가전서', '살전', 'new');
+INSERT INTO books VALUES (53, '데살로니가후서', '살후', 'new');
+INSERT INTO books VALUES (54, '디모데전서', '딤전', 'new');
+INSERT INTO books VALUES (55, '디모데후서', '딤후', 'new');
+INSERT INTO books VALUES (56, '디도서', '딛', 'new');
+INSERT INTO books VALUES (57, '빌레몬서', '몬', 'new');
+INSERT INTO books VALUES (58, '히브리서', '히', 'new');
+INSERT INTO books VALUES (59, '야고보서', '약', 'new');
+INSERT INTO books VALUES (60, '베드로전서', '벧전', 'new');
+INSERT INTO books VALUES (61, '베드로후서', '벧후', 'new');
+INSERT INTO books VALUES (62, '요한일서', '요일', 'new');
+INSERT INTO books VALUES (63, '요한이서', '요이', 'new');
+INSERT INTO books VALUES (64, '요한삼서', '요삼', 'new');
+INSERT INTO books VALUES (65, '유다서', '유', 'new');
+INSERT INTO books VALUES (66, '요한계시록', '계', 'new');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (1, 23, 41, 10, '두려워하지 말라 내가 너와 함께 함이라 놀라지 말라 나는 네 하나님이 됨이라 내가 너를 굳세게 하리라 참으로 너를 도와 주리라 참으로 나의 의로운 오른손으로 너를 붙들리라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (2, 19, 23, 4, '내가 사망의 음침한 골짜기로 다닐지라도 해를 두려워하지 않을 것은 주께서 나와 함께 하심이라 주의 지팡이와 막대기가 나를 안위하시나이다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (3, 19, 46, 1, '하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (4, 40, 11, 28, '수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (5, 45, 8, 28, '우리가 알거니와 하나님을 사랑하는 자 곧 그의 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (6, 19, 34, 18, '여호와는 마음이 상한 자에게 가까이 하시고 중심에 통회하는 자를 구원하시는도다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (7, 23, 40, 31, '오직 여호와를 앙망하는 자는 새 힘을 얻으리니 독수리가 날개치며 올라감 같을 것이요 달음박질하여도 곤비하지 아니하겠고 걸어가도 피곤하지 아니하리로다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (8, 50, 4, 13, '내게 능력 주시는 자 안에서 내가 모든 것을 할 수 있느니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (9, 19, 55, 22, '네 짐을 여호와께 맡기라 그가 너를 붙드시리니 의인의 요동함을 영원히 허락하지 아니하시리로다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (10, 47, 12, 9, '내게 이르시기를 내 은혜가 네게 족하도다 이는 내 능력이 약한 데서 온전하여짐이라 하셨도다 그러므로 도리어 크게 기뻐함으로 나의 여러 약한 것들에 대하여 자랑하리니 이는 그리스도의 능력이 내게 머물게 하려 함이라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (11, 24, 29, 11, '여호와의 말씀이니라 너희를 향한 나의 생각을 내가 아나니 평안이요 재앙이 아니니라 너희에게 미래와 희망을 주는 것이니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (12, 19, 121, 1, '내가 산을 향하여 눈을 들리라 나의 도움이 어디서 올까 나의 도움이 천지를 지으신 여호와에게서로다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (13, 52, 5, 18, '범사에 감사하라 이것이 그리스도 예수 안에서 너희를 향하신 하나님의 뜻이니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (14, 19, 100, 4, '감사함으로 그의 문에 들어가며 찬송함으로 그의 궁정에 들어가서 그에게 감사하며 그의 이름을 송축할지어다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (15, 19, 107, 1, '여호와께 감사하라 그는 선하시며 그 인자하심이 영원함이로다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (16, 19, 136, 1, '여호와께 감사하라 그는 선하시며 그 인자하심이 영원함이로다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (17, 19, 118, 24, '이 날은 여호와께서 정하신 것이라 이 날에 우리가 즐거워하고 기뻐하리로다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (18, 19, 103, 2, '내 영혼아 여호와를 송축하며 그의 모든 은택을 잊지 말지어다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (19, 51, 3, 17, '또 무엇을 하든지 말에나 일에나 다 주 예수의 이름으로 하고 그를 힘입어 하나님 아버지께 감사하라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (20, 45, 15, 13, '소망의 하나님이 모든 기쁨과 평강을 믿음 안에서 너희에게 충만하게 하사 성령의 능력으로 소망이 넘치게 하시기를 원하노라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (21, 58, 11, 1, '믿음은 바라는 것들의 실상이요 보이지 않는 것들의 증거니');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (22, 19, 27, 14, '너는 여호와를 바랄지어다 강하고 담대하며 여호와를 바랄지어다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (23, 19, 62, 5, '나의 영혼아 잠잠히 하나님만 바라라 무릇 나의 소망이 그로부터 나오는도다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (24, 25, 3, 25, '여호와는 자기를 바라는 자에게, 자기를 구하는 영혼에게 선을 베푸시는도다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (25, 45, 8, 25, '만일 우리가 보이지 않는 것을 바라면 참음으로 기다릴지니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (26, 46, 13, 4, '사랑은 오래 참고 사랑은 온유하며 시기하지 아니하며 사랑은 자랑하지 아니하며 교만하지 아니하며');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (27, 46, 13, 7, '모든 것을 참으며 모든 것을 믿으며 모든 것을 바라며 모든 것을 견디느니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (28, 46, 13, 13, '그런즉 믿음 소망 사랑 이 세 가지는 항상 있을 것인데 그 중의 제일은 사랑이라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (29, 43, 3, 16, '하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (30, 62, 4, 19, '우리가 사랑함은 그가 먼저 우리를 사랑하셨음이라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (31, 62, 4, 8, '사랑하지 아니하는 자는 하나님을 알지 못하나니 이는 하나님은 사랑이심이라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (32, 45, 8, 38, '내가 확신하노니 사망이나 생명이나 천사들이나 권세자들이나 현재 일이나 장래 일이나 능력이나');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (33, 43, 15, 13, '사람이 친구를 위하여 자기 목숨을 버리면 이보다 더 큰 사랑이 없나니');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (34, 45, 10, 17, '그러므로 믿음은 들음에서 나며 들음은 그리스도의 말씀으로 말미암았느니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (35, 40, 17, 20, '이르시되 너희 믿음이 작은 까닭이니라 진실로 너희에게 이르노니 만일 너희에게 겨자씨 한 알만한 믿음이 있으면 이 산을 명하여 여기서 저기로 옮겨지라 하면 옮겨질 것이요 또 너희가 못할 것이 없으리라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (36, 48, 2, 20, '내가 그리스도와 함께 십자가에 못 박혔나니 그런즉 이제는 내가 사는 것이 아니요 오직 내 안에 그리스도께서 사시는 것이라 이제 내가 육체 가운데 사는 것은 나를 사랑하사 나를 위하여 자기 자신을 버리신 하나님의 아들을 믿는 믿음 안에서 사는 것이라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (37, 59, 1, 6, '오직 믿음으로 구하고 조금도 의심하지 말라 의심하는 자는 마치 바람에 밀려 요동하는 바다 물결 같으니');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (38, 47, 5, 7, '이는 우리가 믿음으로 행하고 보는 것으로 하지 아니함이로라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (39, 43, 14, 27, '평안을 너희에게 끼치노니 곧 나의 평안을 너희에게 주노라 내가 너희에게 주는 것은 세상이 주는 것과 같지 아니하니라 너희는 마음에 근심하지도 말고 두려워하지도 말라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (40, 50, 4, 6, '아무 것도 염려하지 말고 다만 모든 일에 기도와 간구로 너희 구할 것을 감사함으로 하나님께 아뢰라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (41, 50, 4, 7, '그리하면 모든 지각에 뛰어난 하나님의 평강이 그리스도 예수 안에서 너희 마음과 생각을 지키시리라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (42, 23, 26, 3, '주께서 심지가 견고한 자를 평강에 평강으로 지키시리니 이는 그가 주를 신뢰함이니이다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (43, 19, 4, 8, '내가 평안히 눕고 자리니 나를 안전히 살게 하시는 이는 오직 여호와이시니이다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (44, 40, 6, 34, '그러므로 내일 일을 위하여 염려하지 말라 내일 일은 내일이 염려할 것이요 한 날의 괴로움은 그 날로 족하니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (45, 20, 3, 5, '너는 마음을 다하여 여호와를 신뢰하고 네 명철을 의지하지 말라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (46, 20, 3, 6, '너는 범사에 그를 인정하라 그리하면 네 길을 지도하시리라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (47, 59, 1, 5, '너희 중에 누구든지 지혜가 부족하거든 모든 사람에게 후히 주시고 꾸짖지 아니하시는 하나님께 구하라 그리하면 주시리라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (48, 20, 1, 7, '여호와를 경외하는 것이 지식의 근본이거늘 미련한 자는 지혜와 훈계를 멸시하느니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (49, 20, 9, 10, '여호와를 경외하는 것이 지혜의 근본이요 거룩하신 자를 아는 것이 명철이니라');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (50, 19, 119, 105, '주의 말씀은 내 발에 등이요 내 길에 빛이니이다');
+INSERT INTO verses (id, book_id, chapter, verse, text) VALUES (51, 21, 3, 1, '범사에 기한이 있고 천하만사가 다 때가 있나니');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (1, 1, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (2, 2, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (3, 3, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (4, 4, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (5, 5, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (6, 6, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (7, 7, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (8, 8, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (9, 9, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (10, 10, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (11, 11, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (12, 12, '위로');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (13, 13, '감사');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (14, 14, '감사');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (15, 15, '감사');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (16, 16, '감사');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (17, 17, '감사');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (18, 18, '감사');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (19, 19, '감사');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (20, 20, '소망');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (21, 21, '소망');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (22, 22, '소망');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (23, 23, '소망');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (24, 24, '소망');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (25, 25, '소망');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (26, 26, '사랑');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (27, 27, '사랑');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (28, 28, '사랑');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (29, 29, '사랑');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (30, 30, '사랑');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (31, 31, '사랑');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (32, 32, '사랑');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (33, 33, '사랑');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (34, 34, '믿음');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (35, 35, '믿음');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (36, 36, '믿음');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (37, 37, '믿음');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (38, 38, '믿음');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (39, 39, '평안');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (40, 40, '평안');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (41, 41, '평안');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (42, 42, '평안');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (43, 43, '평안');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (44, 44, '평안');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (45, 45, '지혜');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (46, 46, '지혜');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (47, 47, '지혜');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (48, 48, '지혜');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (49, 49, '지혜');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (50, 50, '지혜');
+INSERT INTO popular_verses (id, verse_id, category) VALUES (51, 51, '지혜');
