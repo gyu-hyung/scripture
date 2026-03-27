@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String appName = '말씀위젯';
+  static const String appName = 'Scripture';
   static const String dbName = 'bible.db';
   static const String widgetAndroidName = 'ScriptureWidgetProvider';
   static const String widgetIosName = 'ScriptureWidget';
@@ -18,15 +18,25 @@ class AppConstants {
   static const String keyPinnedVerseId = 'pinned_verse_id';
   static const String keyIsPinned = 'is_pinned';
 
-  // Categories
+  // Category keys (language-neutral, stored in DB and SharedPreferences)
+  // Use l10n_utils.dart > localizeCategory() for display labels
+  static const String categoryAll          = 'all';
+  static const String categoryComfort      = 'comfort';
+  static const String categoryThanksgiving = 'thanksgiving';
+  static const String categoryHope         = 'hope';
+  static const String categoryLove         = 'love';
+  static const String categoryFaith        = 'faith';
+  static const String categoryPeace        = 'peace';
+  static const String categoryWisdom       = 'wisdom';
+
   static const List<String> categories = [
-    '전체',
-    '위로',
-    '감사',
-    '소망',
-    '사랑',
-    '믿음',
-    '평안',
-    '지혜',
+    categoryAll,
+    categoryComfort,
+    categoryThanksgiving,
+    categoryHope,
+    categoryLove,
+    categoryFaith,
+    categoryPeace,
+    categoryWisdom,
   ];
 }

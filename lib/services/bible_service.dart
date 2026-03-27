@@ -4,31 +4,37 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/book.dart';
+import '../models/translation.dart';
 import '../models/verse.dart';
 
 class BibleService {
-  static Database? _database;
+  /// 번역본별 DB 인스턴스 캐시 (dbFileName → Database)
+  static final Map<String, Database> _databases = {};
+
+  final Translation translation;
+
+  BibleService(this.translation);
 
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
-    return _database!;
+    final key = translation.dbFileName;
+    if (_databases.containsKey(key)) return _databases[key]!;
+    _databases[key] = await _initDatabase(translation.dbFileName);
+    return _databases[key]!;
   }
 
-  Future<Database> _initDatabase() async {
+  Future<Database> _initDatabase(String dbFileName) async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
-    final path = join(documentsDirectory.path, 'bible.db');
+    final path = join(documentsDirectory.path, dbFileName);
 
-    await _ensureDbCopied(path);
+    await _ensureDbCopied(path, dbFileName);
 
     return await openDatabase(path, readOnly: true);
   }
 
-  Future<void> _ensureDbCopied(String path) async {
+  Future<void> _ensureDbCopied(String path, String dbFileName) async {
     final file = File(path);
     bool needsCopy = !file.existsSync();
 
-    // 파일이 있어도 너무 작으면(헤더 미만) 손상된 것으로 간주
     if (!needsCopy && file.lengthSync() < 1024) {
       needsCopy = true;
     }
@@ -37,14 +43,13 @@ class BibleService {
 
     try {
       await Directory(dirname(path)).create(recursive: true);
-      final data = await rootBundle.load('assets/db/bible.db');
+      final data = await rootBundle.load('assets/db/$dbFileName');
       final bytes = data.buffer.asUint8List(
         data.offsetInBytes,
         data.lengthInBytes,
       );
       await file.writeAsBytes(bytes, flush: true);
     } catch (e) {
-      // 배경 isolate 등에서 rootBundle을 못 쓸 경우 기존 파일이 있으면 그냥 진행
       if (!file.existsSync()) rethrow;
     }
   }
@@ -89,7 +94,7 @@ class BibleService {
     String query;
     List<Object?>? args;
 
-    if (category != null && category != '전체') {
+    if (category != null && category != 'all') {
       query = '''
         SELECT v.*, b.name as book_name, b.abbreviation
         FROM popular_verses pv
@@ -116,7 +121,7 @@ class BibleService {
     String query;
     List<Object?>? args;
 
-    if (category != null && category != '전체') {
+    if (category != null && category != 'all') {
       query = '''
         SELECT v.*, b.name as book_name, b.abbreviation
         FROM popular_verses pv
@@ -148,7 +153,7 @@ class BibleService {
     final maps = await db.rawQuery(
       'SELECT DISTINCT category FROM popular_verses ORDER BY category',
     );
-    return ['전체', ...maps.map((m) => m['category'] as String)];
+    return ['all', ...maps.map((m) => m['category'] as String)];
   }
 
   Future<int> getChapterCount(int bookId) async {
@@ -170,5 +175,15 @@ class BibleService {
       ORDER BY v.verse
     ''', [bookId, chapter]);
     return maps.map((m) => Verse.fromMap(m)).toList();
+  }
+
+  /// 번역본 전환 시 해당 DB 캐시 제거
+  static void clearCache(String dbFileName) {
+    _databases.remove(dbFileName);
+  }
+
+  /// 모든 DB 캐시 제거
+  static void clearAllCache() {
+    _databases.clear();
   }
 }

@@ -1,16 +1,66 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/translation.dart';
 import '../models/verse.dart';
 import '../services/bible_service.dart';
 import '../services/widget_service.dart';
 import '../utils/constants.dart';
 
+// ─── 번역본 선택 ──────────────────────────────────────────────────────────
+
+final selectedTranslationProvider =
+    AsyncNotifierProvider<SelectedTranslationNotifier, Translation>(
+  SelectedTranslationNotifier.new,
+);
+
+class SelectedTranslationNotifier extends AsyncNotifier<Translation> {
+  static const _key = 'selected_translation_id';
+
+  @override
+  Future<Translation> build() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedId = prefs.getString(_key);
+
+    if (savedId != null) {
+      final found = Translation.bundled.where((t) => t.id == savedId).firstOrNull;
+      if (found != null) return found;
+    }
+
+    // 저장된 값 없으면 기기 locale 기반 기본값
+    final locale = WidgetsBinding.instance.platformDispatcher.locale;
+    return Translation.defaultFor(locale.languageCode);
+  }
+
+  Future<void> setTranslation(Translation translation) async {
+    state = AsyncValue.data(translation);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key, translation.id);
+
+    // 번역본 바뀌면 DB 캐시 초기화 후 구절 갱신
+    BibleService.clearAllCache();
+    ref.invalidate(pinnedVerseProvider);
+  }
+}
+
+// ─── 서비스 ───────────────────────────────────────────────────────────────
+
 final bibleServiceProvider = Provider<BibleService>((ref) {
-  return BibleService();
+  final translationAsync = ref.watch(selectedTranslationProvider);
+  final translation = translationAsync.when(
+    data: (t) => t,
+    loading: () => Translation.bundled[0],
+    error: (e, st) => Translation.bundled[0],
+  );
+  return BibleService(translation);
 });
 
 final widgetServiceProvider = Provider<WidgetService>((ref) {
   return WidgetService(ref.read(bibleServiceProvider));
 });
+
+// ─── 카테고리 선택 ───────────────────────────────────────────────────────
 
 final selectedCategoryProvider =
     NotifierProvider<SelectedCategoryNotifier, String>(
@@ -19,12 +69,13 @@ final selectedCategoryProvider =
 
 class SelectedCategoryNotifier extends Notifier<String> {
   @override
-  String build() => AppConstants.categories.first;
+  String build() => AppConstants.categoryAll;
 
   void select(String category) => state = category;
 }
 
-/// 현재 고정 상태
+// ─── 고정 여부 ────────────────────────────────────────────────────────────
+
 final isPinnedProvider = AsyncNotifierProvider<IsPinnedNotifier, bool>(
   IsPinnedNotifier.new,
 );
@@ -39,23 +90,8 @@ class IsPinnedNotifier extends AsyncNotifier<bool> {
   void refresh() => ref.invalidateSelf();
 }
 
-/// 오늘의 말씀 (랜덤 인기 구절, 매일 변경)
-final dailyVerseProvider = AsyncNotifierProvider<DailyVerseNotifier, Verse?>(
-  DailyVerseNotifier.new,
-);
+// ─── 고정 말씀 ────────────────────────────────────────────────────────────
 
-class DailyVerseNotifier extends AsyncNotifier<Verse?> {
-  @override
-  Future<Verse?> build() async {
-    final widgetService = ref.read(widgetServiceProvider);
-    await widgetService.checkAndUpdateDailyVerseIfNeeded();
-    return await widgetService.getDailyVerse();
-  }
-
-  void refresh() => ref.invalidateSelf();
-}
-
-/// 사용자가 선택한 고정 말씀
 final pinnedVerseProvider = AsyncNotifierProvider<PinnedVerseNotifier, Verse?>(
   PinnedVerseNotifier.new,
 );
@@ -63,6 +99,9 @@ final pinnedVerseProvider = AsyncNotifierProvider<PinnedVerseNotifier, Verse?>(
 class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
   @override
   Future<Verse?> build() async {
+    // 번역본이 바뀌면 이 provider도 자동으로 rebuild
+    ref.watch(selectedTranslationProvider);
+
     final widgetService = ref.read(widgetServiceProvider);
     return await widgetService.getPinnedVerse();
   }
@@ -86,11 +125,12 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
   void refresh() => ref.invalidateSelf();
 }
 
-/// 카테고리별 말씀 목록 (레거시)
+// ─── 카테고리별 말씀 목록 ─────────────────────────────────────────────────
+
 final verseListProvider =
     FutureProvider.family<List<Verse>, String>((ref, category) async {
   final bibleService = ref.read(bibleServiceProvider);
   return await bibleService.getPopularVerses(
-    category: category == '전체' ? null : category,
+    category: category == 'all' ? null : category,
   );
 });

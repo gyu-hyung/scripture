@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/book.dart';
 import '../models/verse.dart';
@@ -40,14 +41,15 @@ class _BiblePickerSheetState extends ConsumerState<BiblePickerSheet> {
     });
   }
 
-  String get _stepTitle {
-    if (_step == 0) return '성경을 선택하세요';
-    if (_step == 1) return '${_selectedBook!.name} — 장을 선택하세요';
-    return '${_selectedBook!.name} $_selectedChapter장 — 절을 선택하세요';
+  String _getStepTitle(AppLocalizations l10n) {
+    if (_step == 0) return l10n.selectBook;
+    if (_step == 1) return l10n.bookSelectChapter(_selectedBook!.name);
+    return l10n.bookChapterSelectVerse(_selectedBook!.name, _selectedChapter!);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
     return Container(
@@ -69,7 +71,7 @@ class _BiblePickerSheetState extends ConsumerState<BiblePickerSheet> {
               ),
             ),
           ),
-          // 단계 타이틀 + 브레드크럼 (하단 가까이 배치를 위해 상단은 최소화)
+          // 단계 타이틀 + 브레드크럼
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
             child: Row(
@@ -81,7 +83,7 @@ class _BiblePickerSheetState extends ConsumerState<BiblePickerSheet> {
                     child: Text(
                       _step == 2
                           ? '${_selectedBook!.name} >'
-                          : '성경 >',
+                          : l10n.bookBreadcrumb,
                       style: TextStyle(
                         fontSize: 13,
                         color: theme.colorScheme.onSurface
@@ -97,7 +99,7 @@ class _BiblePickerSheetState extends ConsumerState<BiblePickerSheet> {
                         _selectedChapter = null;
                       }),
                       child: Text(
-                        '$_selectedChapter장 >',
+                        l10n.chapterBreadcrumb(_selectedChapter!),
                         style: TextStyle(
                           fontSize: 13,
                           color: theme.colorScheme.onSurface
@@ -110,7 +112,7 @@ class _BiblePickerSheetState extends ConsumerState<BiblePickerSheet> {
                 ],
                 Expanded(
                   child: Text(
-                    _stepTitle,
+                    _getStepTitle(l10n),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -156,7 +158,9 @@ class _BiblePickerSheetState extends ConsumerState<BiblePickerSheet> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                        '${verse.reference} 말씀이 설정되었습니다'),
+                                      AppLocalizations.of(context)
+                                          .verseSet(verse.reference),
+                                    ),
                                     behavior: SnackBarBehavior.floating,
                                     duration: const Duration(seconds: 2),
                                   ),
@@ -179,7 +183,11 @@ class _BiblePickerSheetState extends ConsumerState<BiblePickerSheet> {
                   child: OutlinedButton.icon(
                     onPressed: _back,
                     icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                    label: Text(_step == 1 ? '성경 선택으로' : '장 선택으로'),
+                    label: Text(
+                      _step == 1
+                          ? l10n.backToBookSelect
+                          : l10n.backToChapterSelect,
+                    ),
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -220,6 +228,8 @@ class _BookSelectorState extends State<_BookSelector> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return FutureBuilder<List<Book>>(
       future: _future,
       builder: (context, snapshot) {
@@ -227,7 +237,7 @@ class _BookSelectorState extends State<_BookSelector> {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
-          return Center(child: Text('오류: ${snapshot.error}'));
+          return Center(child: Text(l10n.errorMsg(snapshot.error.toString())));
         }
         final books = snapshot.data ?? [];
         final oldT = books.where((b) => b.isOldTestament).toList();
@@ -236,7 +246,7 @@ class _BookSelectorState extends State<_BookSelector> {
         return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           children: [
-            _BookGroupHeader(title: '구약', count: oldT.length, isOld: true),
+            _BookGroupHeader(count: oldT.length, isOld: true),
             const SizedBox(height: 6),
             ...oldT.map((b) => _BookTile(
                   book: b,
@@ -244,7 +254,7 @@ class _BookSelectorState extends State<_BookSelector> {
                   onTap: () => widget.onSelect(b),
                 )),
             const SizedBox(height: 16),
-            _BookGroupHeader(title: '신약', count: newT.length, isOld: false),
+            _BookGroupHeader(count: newT.length, isOld: false),
             const SizedBox(height: 6),
             ...newT.map((b) => _BookTile(
                   book: b,
@@ -260,16 +270,17 @@ class _BookSelectorState extends State<_BookSelector> {
 }
 
 class _BookGroupHeader extends StatelessWidget {
-  final String title;
   final int count;
   final bool isOld;
 
-  const _BookGroupHeader(
-      {required this.title, required this.count, required this.isOld});
+  const _BookGroupHeader({required this.count, required this.isOld});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final title = isOld ? l10n.oldTestament : l10n.newTestament;
     final color = isOld ? const Color(0xFFB45309) : const Color(0xFF1D4ED8);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -277,7 +288,7 @@ class _BookGroupHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        '$title  $count권',
+        '$title  ${l10n.booksCount(count)}',
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w700,
@@ -372,6 +383,7 @@ class _ChapterSelectorState extends State<_ChapterSelector> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
     return FutureBuilder<int>(
@@ -381,11 +393,11 @@ class _ChapterSelectorState extends State<_ChapterSelector> {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
-          return Center(child: Text('오류: ${snapshot.error}'));
+          return Center(child: Text(l10n.errorMsg(snapshot.error.toString())));
         }
         final count = snapshot.data ?? 0;
         if (count == 0) {
-          return const Center(child: Text('장 정보를 불러올 수 없습니다'));
+          return Center(child: Text(l10n.noChapterInfo));
         }
 
         return GridView.builder(
@@ -450,6 +462,7 @@ class _VerseSelectorState extends State<_VerseSelector> {
   }
 
   void _showPreview(BuildContext context, Verse verse) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
@@ -504,7 +517,7 @@ class _VerseSelectorState extends State<_VerseSelector> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text('이 말씀으로 설정하기'),
+                child: Text(l10n.setThisVerse),
               ),
             ),
           ],
@@ -515,6 +528,7 @@ class _VerseSelectorState extends State<_VerseSelector> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
     return FutureBuilder<List<Verse>>(
@@ -524,11 +538,11 @@ class _VerseSelectorState extends State<_VerseSelector> {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
-          return Center(child: Text('오류: ${snapshot.error}'));
+          return Center(child: Text(l10n.errorMsg(snapshot.error.toString())));
         }
         final verses = snapshot.data ?? [];
         if (verses.isEmpty) {
-          return const Center(child: Text('절 정보를 불러올 수 없습니다'));
+          return Center(child: Text(l10n.noVerseInfo));
         }
 
         return GridView.builder(

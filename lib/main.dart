@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:workmanager/workmanager.dart';
 import 'app.dart';
+import 'models/translation.dart';
 import 'services/bible_service.dart';
 import 'services/widget_service.dart';
 import 'utils/constants.dart';
@@ -18,7 +19,8 @@ void callbackDispatcher() {
 
     if (task == _dailyVerseTask) {
       await HomeWidget.setAppGroupId(AppConstants.appGroupId);
-      final bibleService = BibleService();
+      // 백그라운드 태스크는 기본 번역본(개역개정) 사용
+      final bibleService = BibleService(Translation.bundled[0]);
       final widgetService = WidgetService(bibleService);
       await widgetService.updateDailyVerse();
     }

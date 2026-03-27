@@ -1,0 +1,119 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Bible Widget",
+  "@appTitle": { "description": "App title" },
+
+  "pinnedVerseTitle": "My Pinned Verse",
+  "@pinnedVerseTitle": { "description": "Section title for pinned verse" },
+
+  "dailyVerseTitle": "Today's Verse",
+  "@dailyVerseTitle": { "description": "Section title for daily verse" },
+
+  "selectVerse": "Select Verse",
+  "@selectVerse": { "description": "Button text for selecting a verse" },
+
+  "selectVerseTooltip": "Select",
+  "@selectVerseTooltip": { "description": "Tooltip for select verse icon button" },
+
+  "noPinnedVerse": "No verse pinned yet.\nTap below to select one.",
+  "@noPinnedVerse": { "description": "Empty state message for pinned verse" },
+
+  "dailyVerseLoading": "Loading today's verse...",
+  "@dailyVerseLoading": { "description": "Loading message for daily verse" },
+
+  "unpin": "Unpin",
+  "@unpin": { "description": "Button text to unpin a verse" },
+
+  "errorMsg": "Error: {error}",
+  "@errorMsg": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": { "type": "String", "example": "Something went wrong" }
+    }
+  },
+
+  "categoryAll": "All",
+  "@categoryAll": { "description": "Category: all verses" },
+  "categoryComfort": "Comfort",
+  "@categoryComfort": { "description": "Category: comfort verses" },
+  "categoryThanksgiving": "Thanksgiving",
+  "@categoryThanksgiving": { "description": "Category: thanksgiving verses" },
+  "categoryHope": "Hope",
+  "@categoryHope": { "description": "Category: hope verses" },
+  "categoryLove": "Love",
+  "@categoryLove": { "description": "Category: love verses" },
+  "categoryFaith": "Faith",
+  "@categoryFaith": { "description": "Category: faith verses" },
+  "categoryPeace": "Peace",
+  "@categoryPeace": { "description": "Category: peace verses" },
+  "categoryWisdom": "Wisdom",
+  "@categoryWisdom": { "description": "Category: wisdom verses" },
+
+  "oldTestament": "Old Testament",
+  "@oldTestament": { "description": "Old Testament label" },
+  "newTestament": "New Testament",
+  "@newTestament": { "description": "New Testament label" },
+
+  "booksCount": "{count} books",
+  "@booksCount": {
+    "description": "Number of books in testament",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "selectBook": "Select a Book",
+  "@selectBook": { "description": "Title for book selection step" },
+
+  "bookSelectChapter": "{book} — Select a Chapter",
+  "@bookSelectChapter": {
+    "description": "Title for chapter selection step",
+    "placeholders": {
+      "book": { "type": "String" }
+    }
+  },
+
+  "bookChapterSelectVerse": "{book} Ch.{chapter} — Select a Verse",
+  "@bookChapterSelectVerse": {
+    "description": "Title for verse selection step",
+    "placeholders": {
+      "book": { "type": "String" },
+      "chapter": { "type": "int" }
+    }
+  },
+
+  "backToBookSelect": "Back to Book",
+  "@backToBookSelect": { "description": "Back button text to return to book selection" },
+
+  "backToChapterSelect": "Back to Chapter",
+  "@backToChapterSelect": { "description": "Back button text to return to chapter selection" },
+
+  "bookBreadcrumb": "Bible >",
+  "@bookBreadcrumb": { "description": "Breadcrumb label for Bible/book level" },
+
+  "chapterBreadcrumb": "Ch.{chapter} >",
+  "@chapterBreadcrumb": {
+    "description": "Breadcrumb label for chapter level",
+    "placeholders": {
+      "chapter": { "type": "int" }
+    }
+  },
+
+  "verseSet": "{reference} has been set.",
+  "@verseSet": {
+    "description": "Snackbar message when a verse is pinned",
+    "placeholders": {
+      "reference": { "type": "String" }
+    }
+  },
+
+  "setThisVerse": "Set This Verse",
+  "@setThisVerse": { "description": "Button to confirm verse selection in preview" },
+
+  "noChapterInfo": "Chapter information unavailable",
+  "@noChapterInfo": { "description": "Error when chapter info cannot be loaded" },
+
+  "noVerseInfo": "Verse information unavailable",
+  "@noVerseInfo": { "description": "Error when verse info cannot be loaded" }
+}
