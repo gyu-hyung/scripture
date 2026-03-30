@@ -31,7 +31,9 @@ void callbackDispatcher() {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await HomeWidget.setAppGroupId(AppConstants.appGroupId);
+  if (Platform.isIOS || Platform.isAndroid) {
+    await HomeWidget.setAppGroupId(AppConstants.appGroupId);
+  }
 
   // workmanager는 Android에서만 사용
   // iOS는 WidgetKit TimelineProvider가 자체적으로 매일 갱신 처리
