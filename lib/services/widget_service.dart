@@ -10,12 +10,21 @@ class WidgetService {
   WidgetService(this._bibleService);
 
   /// 사용자가 직접 말씀을 고정 설정
-  Future<void> pinVerse(Verse verse) async {
+  Future<void> pinVerse(Verse verse, {String? themeId}) async {
     final prefs = await SharedPreferences.getInstance();
+
+    // 테마 ID가 있으면 저장, 없으면 기존 테마 사용
+    final currentTheme = themeId ??
+        prefs.getString(AppConstants.keyBackgroundStyle) ??
+        AppConstants.themeModernDark;
+    if (themeId != null) {
+      await prefs.setString(AppConstants.keyBackgroundStyle, themeId);
+    }
+
     await prefs.setBool(AppConstants.keyIsPinned, true);
     await prefs.setInt(AppConstants.keyPinnedVerseId, verse.id);
     await _saveCurrentVerse(verse);
-    await _updateNativeWidget(verse, isPinned: true);
+    await _updateNativeWidget(verse, isPinned: true, themeId: currentTheme);
   }
 
   /// 고정 해제 → 자동 일일 모드로 전환
@@ -104,15 +113,24 @@ class WidgetService {
     await prefs.setString(AppConstants.keyCurrentVerseRef, verse.reference);
   }
 
-  Future<void> _updateNativeWidget(Verse verse, {bool? isPinned}) async {
+  Future<void> _updateNativeWidget(Verse verse,
+      {bool? isPinned, String? themeId}) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
       final pinnedStatus = isPinned ?? await this.isPinned();
-      
+      final currentTheme = themeId ??
+          prefs.getString(AppConstants.keyBackgroundStyle) ??
+          AppConstants.themeModernDark;
+
       await HomeWidget.setAppGroupId(AppConstants.appGroupId);
-      await HomeWidget.saveWidgetData(AppConstants.keyWidgetVerseText, verse.text);
-      await HomeWidget.saveWidgetData(AppConstants.keyWidgetVerseRef, verse.reference);
-      await HomeWidget.saveWidgetData(AppConstants.keyWidgetIsPinned, pinnedStatus);
-      
+      await HomeWidget.saveWidgetData(
+          AppConstants.keyWidgetVerseText, verse.text);
+      await HomeWidget.saveWidgetData(
+          AppConstants.keyWidgetVerseRef, verse.reference);
+      await HomeWidget.saveWidgetData(
+          AppConstants.keyWidgetIsPinned, pinnedStatus);
+      await HomeWidget.saveWidgetData(AppConstants.keyWidgetTheme, currentTheme);
+
       await HomeWidget.updateWidget(
         androidName: AppConstants.widgetAndroidName,
         iOSName: AppConstants.widgetIosName,

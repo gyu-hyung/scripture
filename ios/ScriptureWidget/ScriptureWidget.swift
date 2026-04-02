@@ -7,6 +7,7 @@ struct VerseEntry: TimelineEntry {
     let verseText: String
     let reference: String
     let isPinned: Bool
+    let themeId: String
 }
 
 // MARK: - UserDefaults App Group
@@ -14,6 +15,7 @@ private let appGroupId = "group.com.scripture.scripture"
 private let keyVerseText = "verse_text"
 private let keyVerseReference = "verse_ref"
 private let keyIsPinned = "is_pinned"
+private let keyWidgetTheme = "widget_theme"
 
 // MARK: - Timeline Provider
 struct ScriptureProvider: TimelineProvider {
@@ -22,7 +24,8 @@ struct ScriptureProvider: TimelineProvider {
             date: Date(),
             verseText: "여호와는 나의 목자시니 내게 부족함이 없으리로다",
             reference: "시편 23:1",
-            isPinned: false
+            isPinned: false,
+            themeId: "modern_dark"
         )
     }
 
@@ -45,7 +48,8 @@ struct ScriptureProvider: TimelineProvider {
         let verseText = defaults?.string(forKey: keyVerseText) ?? "여호와는 나의 목자시니 내게 부족함이 없으리로다"
         let reference = defaults?.string(forKey: keyVerseReference) ?? "시편 23:1"
         let isPinned = defaults?.bool(forKey: keyIsPinned) ?? false
-        return VerseEntry(date: Date(), verseText: verseText, reference: reference, isPinned: isPinned)
+        let themeId = defaults?.string(forKey: keyWidgetTheme) ?? "modern_dark"
+        return VerseEntry(date: Date(), verseText: verseText, reference: reference, isPinned: isPinned, themeId: themeId)
     }
 }
 
@@ -56,23 +60,61 @@ struct ScriptureHomeWidgetView: View {
     var entry: VerseEntry
     @Environment(\.widgetFamily) var family
 
+    // 테마 설정
+    struct ThemeColors {
+        let background: Color
+        let text: Color
+        let accent: Color
+    }
+
+    private func getThemeColors() -> ThemeColors {
+        switch entry.themeId {
+        case "minimalist_light":
+            return ThemeColors(
+                background: Color(red: 0.97, green: 0.98, blue: 0.98),
+                text: Color(red: 0.18, green: 0.18, blue: 0.18),
+                accent: Color(red: 0.05, green: 0.28, blue: 0.63)
+            )
+        case "serene_blue":
+            return ThemeColors(
+                background: Color(red: 0.05, green: 0.28, blue: 0.63),
+                text: .white,
+                accent: Color(red: 0.73, green: 0.87, blue: 0.98)
+            )
+        case "nature_green":
+            return ThemeColors(
+                background: Color(red: 0.18, green: 0.49, blue: 0.20),
+                text: .white,
+                accent: Color(red: 0.78, green: 0.90, blue: 0.79)
+            )
+        default: // modern_dark
+            return ThemeColors(
+                background: Color(red: 0.08, green: 0.08, blue: 0.12),
+                text: .white,
+                accent: Color(red: 0.72, green: 0.53, blue: 0.04)
+            )
+        }
+    }
+
     var body: some View {
+        let styles = getThemeColors()
+        
         ZStack {
-            Color(red: 0.08, green: 0.08, blue: 0.12)
+            styles.background
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Image(systemName: "book.closed.fill")
-                        .foregroundColor(Color(red: 0.72, green: 0.53, blue: 0.04))
+                        .foregroundColor(styles.accent)
                         .font(.caption2)
                     if entry.isPinned {
                         Text("내가 설정한 말씀")
                             .font(.caption2)
-                            .foregroundColor(Color(red: 0.72, green: 0.53, blue: 0.04))
+                            .foregroundColor(styles.accent)
                     } else {
                         Text("오늘의 말씀")
                             .font(.caption2)
-                            .foregroundColor(.gray)
+                            .foregroundColor(entry.themeId == "minimalist_light" ? .gray : .gray)
                     }
                     Spacer()
                 }
@@ -81,7 +123,7 @@ struct ScriptureHomeWidgetView: View {
 
                 Text(entry.verseText)
                     .font(family == .systemSmall ? .caption : .body)
-                    .foregroundColor(.white)
+                    .foregroundColor(styles.text)
                     .lineLimit(family == .systemSmall ? 4 : 6)
                     .fixedSize(horizontal: false, vertical: false)
 
@@ -89,7 +131,7 @@ struct ScriptureHomeWidgetView: View {
 
                 Text(entry.reference)
                     .font(.caption2)
-                    .foregroundColor(Color(red: 0.72, green: 0.53, blue: 0.04))
+                    .foregroundColor(styles.accent)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(12)
@@ -175,6 +217,7 @@ struct ScriptureVerseWidget: Widget {
         date: .now,
         verseText: "여호와는 나의 목자시니 내게 부족함이 없으리로다",
         reference: "시편 23:1",
-        isPinned: true
+        isPinned: true,
+        themeId: "modern_dark"
     )
 }

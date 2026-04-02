@@ -22,6 +22,13 @@ class AppConstants {
   static const String keyWidgetVerseText = 'verse_text';
   static const String keyWidgetVerseRef = 'verse_ref';
   static const String keyWidgetIsPinned = 'is_pinned';
+  static const String keyWidgetTheme = 'widget_theme';
+
+  // Theme IDs
+  static const String themeModernDark = 'modern_dark';
+  static const String themeMinimalistLight = 'minimalist_light';
+  static const String themeSereneBlue = 'serene_blue';
+  static const String themeNatureGreen = 'nature_green';
 
   // Category keys (language-neutral, stored in DB and SharedPreferences)
   // Use l10n_utils.dart > localizeCategory() for display labels

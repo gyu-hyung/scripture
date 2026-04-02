@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/verse.dart';
 import '../providers/providers.dart';
 import '../widgets/bible_navigator_sheet.dart';
-
+import 'widget_theme_screen.dart';
 
 class ChapterScreen extends ConsumerStatefulWidget {
   final int bookId;
@@ -227,11 +227,13 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
         color: Colors.transparent, // 배경 투명화
       ),
       child: ElevatedButton(
-        onPressed: () async {
-          await ref.read(pinnedVerseProvider.notifier).pinVerse(_selectedVerse!);
+        onPressed: () {
           if (mounted) {
-            // 토스트 없이 바로 메인(홈) 화면으로 이동
-            Navigator.of(context).popUntil((route) => route.isFirst);
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => WidgetThemeScreen(verse: _selectedVerse!),
+              ),
+            );
           }
         },
         style: ElevatedButton.styleFrom(

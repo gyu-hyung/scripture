@@ -50,10 +50,10 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
     return await widgetService.getPinnedVerse();
   }
 
-  Future<void> pinVerse(Verse verse) async {
+  Future<void> pinVerse(Verse verse, {String? themeId}) async {
     state = const AsyncValue.loading();
     final widgetService = ref.read(widgetServiceProvider);
-    await widgetService.pinVerse(verse);
+    await widgetService.pinVerse(verse, themeId: themeId);
     state = AsyncValue.data(verse);
     ref.read(isPinnedProvider.notifier).refresh();
   }
