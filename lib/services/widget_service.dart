@@ -85,13 +85,8 @@ class WidgetService {
     }
   }
 
-  /// 자동 일일 말씀 갱신 (workmanager 백그라운드 작업용)
+  /// 일일 말씀 갱신 (workmanager 백그라운드 작업 & 수동 갱신 공용)
   Future<void> updateDailyVerse({String? category}) async {
-    await _forceNewDailyVerse(category: category);
-  }
-
-  /// 강제로 새 말씀으로 교체 (레거시 호환)
-  Future<void> forceUpdateVerse({String? category}) async {
     await _forceNewDailyVerse(category: category);
   }
 

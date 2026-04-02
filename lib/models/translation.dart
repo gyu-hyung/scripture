@@ -22,6 +22,26 @@ class Translation {
     this.license = 'public_domain',
   });
 
+  /// 언어 코드 → 표시 이름 매핑
+  static const Map<String, String> languageNames = {
+    'ko': '한국어',
+    'en': 'English',
+    'ja': '日本語',
+    'zh': '中文',
+    'es': 'Español',
+    'pt': 'Português',
+    'de': 'Deutsch',
+    'fr': 'Français',
+    'ru': 'Русский',
+    'ar': 'العربية',
+    'id': 'Indonesia',
+    'vi': 'Tiếng Việt',
+  };
+
+  /// 이 번역본의 언어 표시 이름
+  String get languageDisplayName =>
+      languageNames[language] ?? language.toUpperCase();
+
   // ─── 번들 포함 번역본 ───────────────────────────────────────────────────
 
   static const Translation koKor = Translation(

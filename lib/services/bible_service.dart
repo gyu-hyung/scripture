@@ -165,6 +165,15 @@ class BibleService {
     return (result.first['cnt'] as int?) ?? 0;
   }
 
+  Future<int> getVerseCount(int bookId, int chapter) async {
+    final db = await database;
+    final result = await db.rawQuery(
+      'SELECT MAX(verse) as cnt FROM verses WHERE book_id = ? AND chapter = ?',
+      [bookId, chapter],
+    );
+    return (result.first['cnt'] as int?) ?? 0;
+  }
+
   Future<List<Verse>> getVersesByChapter(int bookId, int chapter) async {
     final db = await database;
     final maps = await db.rawQuery('''
@@ -174,6 +183,21 @@ class BibleService {
       WHERE v.book_id = ? AND v.chapter = ?
       ORDER BY v.verse
     ''', [bookId, chapter]);
+    return maps.map((m) => Verse.fromMap(m)).toList();
+  }
+
+  /// 키워드로 전체 성경 구절 검색 (책 이름, 절 번호 포함)
+  Future<List<Verse>> searchVerses(String keyword) async {
+    if (keyword.trim().isEmpty) return [];
+    final db = await database;
+    final maps = await db.rawQuery('''
+      SELECT v.*, b.name as book_name, b.abbreviation
+      FROM verses v
+      JOIN books b ON v.book_id = b.id
+      WHERE v.text LIKE ?
+      ORDER BY v.book_id, v.chapter, v.verse
+      LIMIT 500
+    ''', ['%$keyword%']);
     return maps.map((m) => Verse.fromMap(m)).toList();
   }
 
