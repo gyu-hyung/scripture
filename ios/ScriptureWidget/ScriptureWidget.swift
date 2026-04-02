@@ -11,9 +11,9 @@ struct VerseEntry: TimelineEntry {
 
 // MARK: - UserDefaults App Group
 private let appGroupId = "group.com.scripture.scripture"
-private let keyVerseText = "scripture_verse_text"
-private let keyVerseReference = "scripture_verse_reference"
-private let keyIsPinned = "scripture_is_pinned"
+private let keyVerseText = "verse_text"
+private let keyVerseReference = "verse_ref"
+private let keyIsPinned = "is_pinned"
 
 // MARK: - Timeline Provider
 struct ScriptureProvider: TimelineProvider {

@@ -18,6 +18,11 @@ class AppConstants {
   static const String keyPinnedVerseId = 'pinned_verse_id';
   static const String keyIsPinned = 'is_pinned';
 
+  // HomeWidget (Native Widget) Shared Keys
+  static const String keyWidgetVerseText = 'verse_text';
+  static const String keyWidgetVerseRef = 'verse_ref';
+  static const String keyWidgetIsPinned = 'is_pinned';
+
   // Category keys (language-neutral, stored in DB and SharedPreferences)
   // Use l10n_utils.dart > localizeCategory() for display labels
   static const String categoryAll          = 'all';

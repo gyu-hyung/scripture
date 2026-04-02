@@ -15,7 +15,7 @@ class WidgetService {
     await prefs.setBool(AppConstants.keyIsPinned, true);
     await prefs.setInt(AppConstants.keyPinnedVerseId, verse.id);
     await _saveCurrentVerse(verse);
-    await _updateNativeWidget(verse);
+    await _updateNativeWidget(verse, isPinned: true);
   }
 
   /// 고정 해제 → 자동 일일 모드로 전환
@@ -26,7 +26,7 @@ class WidgetService {
     final daily = await getDailyVerse();
     if (daily != null) {
       await _saveCurrentVerse(daily);
-      await _updateNativeWidget(daily);
+      await _updateNativeWidget(daily, isPinned: false);
     } else {
       await _forceNewDailyVerse();
     }
@@ -81,7 +81,7 @@ class WidgetService {
     final pinned = await isPinned();
     if (!pinned) {
       await _saveCurrentVerse(verse);
-      await _updateNativeWidget(verse);
+      await _updateNativeWidget(verse, isPinned: false);
     }
   }
 
@@ -104,11 +104,15 @@ class WidgetService {
     await prefs.setString(AppConstants.keyCurrentVerseRef, verse.reference);
   }
 
-  Future<void> _updateNativeWidget(Verse verse) async {
+  Future<void> _updateNativeWidget(Verse verse, {bool? isPinned}) async {
     try {
+      final pinnedStatus = isPinned ?? await this.isPinned();
+      
       await HomeWidget.setAppGroupId(AppConstants.appGroupId);
-      await HomeWidget.saveWidgetData('verse_text', verse.text);
-      await HomeWidget.saveWidgetData('verse_ref', verse.reference);
+      await HomeWidget.saveWidgetData(AppConstants.keyWidgetVerseText, verse.text);
+      await HomeWidget.saveWidgetData(AppConstants.keyWidgetVerseRef, verse.reference);
+      await HomeWidget.saveWidgetData(AppConstants.keyWidgetIsPinned, pinnedStatus);
+      
       await HomeWidget.updateWidget(
         androidName: AppConstants.widgetAndroidName,
         iOSName: AppConstants.widgetIosName,
