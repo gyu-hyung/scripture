@@ -86,25 +86,16 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Icon(Icons.book_rounded, color: selectedTheme['accent'], size: 14),
-                        const SizedBox(width: 6),
-                        Text(
-                          '내가 설정한 말씀',
-                          style: TextStyle(color: selectedTheme['accent'], fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
                     const Spacer(),
                     Text(
                       widget.verse.text,
                       style: GoogleFonts.notoSerif(
                         color: selectedTheme['text'],
-                        fontSize: 16,
-                        height: 1.6,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        height: 1.5,
                       ),
-                      maxLines: 6,
+                      maxLines: 8,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const Spacer(),
@@ -114,8 +105,8 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
                         widget.verse.reference,
                         style: TextStyle(
                           color: selectedTheme['accent'],
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),

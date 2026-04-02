@@ -4,29 +4,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp"
+    android:gravity="center_vertical|start"
+    android:padding="20dp"
     android:background="@drawable/widget_background">
 
     <TextView
         android:id="@+id/verse_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:text="여호와는 나의 목자시니 내게 부족함이 없으리로다"
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textColor="#2D2D2D"
-        android:gravity="center"
-        android:lineSpacingMultiplier="1.5"
+        android:gravity="center_vertical|start"
+        android:lineSpacingMultiplier="1.2"
+        android:maxLines="10"
+        android:ellipsize="end"
         android:fontFamily="sans-serif-medium" />
 
     <TextView
         android:id="@+id/verse_ref"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="end"
         android:text="시편 23:1"
         android:textSize="13sp"
         android:textColor="#B8860B"
+        android:textStyle="bold"
         android:fontFamily="sans-serif-medium" />
 
 </LinearLayout>

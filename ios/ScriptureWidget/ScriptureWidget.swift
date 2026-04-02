@@ -55,86 +55,73 @@ struct ScriptureProvider: TimelineProvider {
 
 // MARK: - Widget Views
 
+struct ThemeColors {
+    let background: Color
+    let text: Color
+    let accent: Color
+}
+
+func getThemeColors(for themeId: String) -> ThemeColors {
+    switch themeId {
+    case "minimalist_light":
+        return ThemeColors(
+            background: Color(red: 0.97, green: 0.98, blue: 0.98),
+            text: Color(red: 0.18, green: 0.18, blue: 0.18),
+            accent: Color(red: 0.05, green: 0.28, blue: 0.63)
+        )
+    case "serene_blue":
+        return ThemeColors(
+            background: Color(red: 0.05, green: 0.28, blue: 0.63),
+            text: .white,
+            accent: Color(red: 0.73, green: 0.87, blue: 0.98)
+        )
+    case "nature_green":
+        return ThemeColors(
+            background: Color(red: 0.18, green: 0.49, blue: 0.20),
+            text: .white,
+            accent: Color(red: 0.78, green: 0.90, blue: 0.79)
+        )
+    default: // modern_dark
+        return ThemeColors(
+            background: Color(red: 0.08, green: 0.08, blue: 0.12),
+            text: .white,
+            accent: Color(red: 0.72, green: 0.53, blue: 0.04)
+        )
+    }
+}
+
 // 홈화면 Small/Medium 위젯
 struct ScriptureHomeWidgetView: View {
     var entry: VerseEntry
     @Environment(\.widgetFamily) var family
 
-    // 테마 설정
-    struct ThemeColors {
-        let background: Color
-        let text: Color
-        let accent: Color
-    }
-
-    private func getThemeColors() -> ThemeColors {
-        switch entry.themeId {
-        case "minimalist_light":
-            return ThemeColors(
-                background: Color(red: 0.97, green: 0.98, blue: 0.98),
-                text: Color(red: 0.18, green: 0.18, blue: 0.18),
-                accent: Color(red: 0.05, green: 0.28, blue: 0.63)
-            )
-        case "serene_blue":
-            return ThemeColors(
-                background: Color(red: 0.05, green: 0.28, blue: 0.63),
-                text: .white,
-                accent: Color(red: 0.73, green: 0.87, blue: 0.98)
-            )
-        case "nature_green":
-            return ThemeColors(
-                background: Color(red: 0.18, green: 0.49, blue: 0.20),
-                text: .white,
-                accent: Color(red: 0.78, green: 0.90, blue: 0.79)
-            )
-        default: // modern_dark
-            return ThemeColors(
-                background: Color(red: 0.08, green: 0.08, blue: 0.12),
-                text: .white,
-                accent: Color(red: 0.72, green: 0.53, blue: 0.04)
-            )
-        }
-    }
-
     var body: some View {
-        let styles = getThemeColors()
+        let styles = getThemeColors(for: entry.themeId)
         
         ZStack {
             styles.background
 
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Image(systemName: "book.closed.fill")
-                        .foregroundColor(styles.accent)
-                        .font(.caption2)
-                    if entry.isPinned {
-                        Text("내가 설정한 말씀")
-                            .font(.caption2)
-                            .foregroundColor(styles.accent)
-                    } else {
-                        Text("오늘의 말씀")
-                            .font(.caption2)
-                            .foregroundColor(entry.themeId == "minimalist_light" ? .gray : .gray)
-                    }
-                    Spacer()
-                }
-
+            VStack(alignment: .leading, spacing: 0) {
                 Spacer()
 
                 Text(entry.verseText)
-                    .font(family == .systemSmall ? .caption : .body)
+                    .font(family == .systemSmall ? .subheadline : .title3)
+                    .fontWeight(.medium)
                     .foregroundColor(styles.text)
-                    .lineLimit(family == .systemSmall ? 4 : 6)
+                    .lineLimit(family == .systemSmall ? 6 : 8)
+                    .minimumScaleFactor(0.7)
                     .fixedSize(horizontal: false, vertical: false)
+                    .multilineTextAlignment(.leading)
 
                 Spacer()
 
                 Text(entry.reference)
-                    .font(.caption2)
+                    .font(.caption)
+                    .fontWeight(.bold)
                     .foregroundColor(styles.accent)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            .padding(12)
+            .padding(16)
         }
     }
 }
@@ -199,13 +186,14 @@ struct ScriptureVerseWidget: Widget {
         StaticConfiguration(kind: kind, provider: ScriptureProvider()) { entry in
             ScriptureWidgetEntryView(entry: entry)
                 .containerBackground(
-                    Color(red: 0.08, green: 0.08, blue: 0.12),
+                    getThemeColors(for: entry.themeId).background,
                     for: .widget
                 )
         }
         .configurationDisplayName("성경 말씀")
         .description("매일 성경 말씀을 잠금화면과 홈화면에서 확인하세요.")
         .supportedFamilies(Self.supportedFamilies)
+        .contentMarginsDisabled()
     }
 }
 
