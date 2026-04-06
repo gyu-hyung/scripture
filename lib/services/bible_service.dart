@@ -90,62 +90,41 @@ class BibleService {
   }
 
   Future<List<Verse>> getPopularVerses({String? category}) async {
+    final (query, args) = _popularVersesQuery(category: category);
     final db = await database;
-    String query;
-    List<Object?>? args;
-
-    if (category != null && category != 'all') {
-      query = '''
-        SELECT v.*, b.name as book_name, b.abbreviation
-        FROM popular_verses pv
-        JOIN verses v ON pv.verse_id = v.id
-        JOIN books b ON v.book_id = b.id
-        WHERE pv.category = ?
-      ''';
-      args = [category];
-    } else {
-      query = '''
-        SELECT v.*, b.name as book_name, b.abbreviation
-        FROM popular_verses pv
-        JOIN verses v ON pv.verse_id = v.id
-        JOIN books b ON v.book_id = b.id
-      ''';
-    }
-
     final maps = await db.rawQuery(query, args);
     return maps.map((m) => Verse.fromMap(m)).toList();
   }
 
   Future<Verse?> getRandomPopularVerse({String? category}) async {
+    final (query, args) = _popularVersesQuery(
+      category: category,
+      orderBy: 'ORDER BY RANDOM()',
+      limit: 1,
+    );
     final db = await database;
-    String query;
-    List<Object?>? args;
-
-    if (category != null && category != 'all') {
-      query = '''
-        SELECT v.*, b.name as book_name, b.abbreviation
-        FROM popular_verses pv
-        JOIN verses v ON pv.verse_id = v.id
-        JOIN books b ON v.book_id = b.id
-        WHERE pv.category = ?
-        ORDER BY RANDOM()
-        LIMIT 1
-      ''';
-      args = [category];
-    } else {
-      query = '''
-        SELECT v.*, b.name as book_name, b.abbreviation
-        FROM popular_verses pv
-        JOIN verses v ON pv.verse_id = v.id
-        JOIN books b ON v.book_id = b.id
-        ORDER BY RANDOM()
-        LIMIT 1
-      ''';
-    }
-
     final maps = await db.rawQuery(query, args);
     if (maps.isEmpty) return null;
     return Verse.fromMap(maps.first);
+  }
+
+  /// popular_verses 쿼리 공통 빌더
+  (String, List<Object?>?) _popularVersesQuery({
+    String? category,
+    String orderBy = '',
+    int? limit,
+  }) {
+    final hasCategory = category != null && category != 'all';
+    final where = hasCategory ? 'WHERE pv.category = ?' : '';
+    final limitClause = limit != null ? 'LIMIT $limit' : '';
+    final query = '''
+      SELECT v.*, b.name as book_name, b.abbreviation
+      FROM popular_verses pv
+      JOIN verses v ON pv.verse_id = v.id
+      JOIN books b ON v.book_id = b.id
+      $where $orderBy $limitClause
+    ''';
+    return (query, hasCategory ? [category] : null);
   }
 
   Future<List<String>> getCategories() async {

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../l10n/app_localizations.dart';
 import '../models/verse.dart';
+import '../models/widget_theme.dart';
 import '../providers/providers.dart';
-import '../utils/constants.dart';
 
 class WidgetThemeScreen extends ConsumerStatefulWidget {
   final Verse verse;
@@ -15,48 +16,17 @@ class WidgetThemeScreen extends ConsumerStatefulWidget {
 }
 
 class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
-  String _selectedThemeId = AppConstants.themeModernDark;
-
-  final List<Map<String, dynamic>> _themes = [
-    {
-      'id': AppConstants.themeModernDark,
-      'name': '모던 다크',
-      'bg': const Color(0xFF15151C),
-      'text': Colors.white,
-      'accent': const Color(0xFFB8860B),
-    },
-    {
-      'id': AppConstants.themeMinimalistLight,
-      'name': '미니멀 라이트',
-      'bg': const Color(0xFFF8F9FA),
-      'text': const Color(0xFF2D2D2D),
-      'accent': const Color(0xFF0D47A1),
-    },
-    {
-      'id': AppConstants.themeSereneBlue,
-      'name': '세린 블루',
-      'bg': const Color(0xFF0D47A1),
-      'text': Colors.white,
-      'accent': const Color(0xFFBBDEFB),
-    },
-    {
-      'id': AppConstants.themeNatureGreen,
-      'name': '네이처 그린',
-      'bg': const Color(0xFF2E7D32),
-      'text': Colors.white,
-      'accent': const Color(0xFFC8E6C9),
-    },
-  ];
+  WidgetTheme _selectedTheme = WidgetTheme.modernDark;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final selectedTheme = _themes.firstWhere((t) => t['id'] == _selectedThemeId);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: Text('위젯 테마 선택', style: GoogleFonts.notoSans(fontSize: 16, fontWeight: FontWeight.w600)),
+        title: Text(l10n.widgetThemeTitle, style: GoogleFonts.notoSans(fontSize: 16, fontWeight: FontWeight.w600)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -68,12 +38,12 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: AspectRatio(
-              aspectRatio: 1, // 정사각형 위젯 느낌
+              aspectRatio: 1,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: selectedTheme['bg'],
+                  color: _selectedTheme.background,
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
@@ -90,7 +60,7 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
                     Text(
                       widget.verse.text,
                       style: GoogleFonts.notoSerif(
-                        color: selectedTheme['text'],
+                        color: _selectedTheme.textColor,
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                         height: 1.5,
@@ -104,7 +74,7 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
                       child: Text(
                         widget.verse.reference,
                         style: TextStyle(
-                          color: selectedTheme['accent'],
+                          color: _selectedTheme.accentColor,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
@@ -122,20 +92,20 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               scrollDirection: Axis.horizontal,
-              itemCount: _themes.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 16),
+              itemCount: WidgetTheme.all.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 16),
               itemBuilder: (context, index) {
-                final t = _themes[index];
-                final isSelected = t['id'] == _selectedThemeId;
+                final wt = WidgetTheme.all[index];
+                final isSelected = wt.id == _selectedTheme.id;
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedThemeId = t['id']),
+                  onTap: () => setState(() => _selectedTheme = wt),
                   child: Column(
                     children: [
                       Container(
                         width: 64,
                         height: 64,
                         decoration: BoxDecoration(
-                          color: t['bg'],
+                          color: wt.background,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: isSelected ? theme.colorScheme.primary : Colors.transparent,
@@ -151,12 +121,12 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
                           ],
                         ),
                         child: isSelected
-                            ? Icon(Icons.check, color: t['text'], size: 24)
+                            ? Icon(Icons.check, color: wt.textColor, size: 24)
                             : null,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        t['name'],
+                        wt.localizedName(l10n),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -178,10 +148,9 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
               height: 56,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(pinnedVerseProvider.notifier).pinVerse(widget.verse, themeId: _selectedThemeId);
-                  if (mounted) {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  }
+                  await ref.read(pinnedVerseProvider.notifier).pinVerse(widget.verse, themeId: _selectedTheme.id);
+                  if (!mounted) return;
+                  Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
@@ -189,7 +158,7 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                child: const Text('위젯에 고정하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: Text(l10n.pinToWidget, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
           ),

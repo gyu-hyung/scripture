@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../l10n/app_localizations.dart';
 import '../models/verse.dart';
 import '../providers/providers.dart';
 import '../widgets/bible_navigator_sheet.dart';
@@ -38,7 +39,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
   final _scrollController = ScrollController();
   late Future<List<Verse>> _chapterFuture;
   int? _selectedVerseNum; // 현재 선택된 절 번호
-  Verse? _selectedVerse;  // 현재 선택된 절 객체
+  Verse? _selectedVerse; // 현재 선택된 절 객체
   bool _hasInitialScrolled = false; // 초기 스크롤 완료 여부
 
   @override
@@ -57,10 +58,9 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
   void _scrollToVerse() {
     if (widget.highlightVerse == null || _hasInitialScrolled) return;
     if (!_scrollController.hasClients) return;
-    
+
     _hasInitialScrolled = true;
-    
-    // 절 번호 기준으로 대략적인 오프셋 계산 (절 하나당 약 72px)
+
     final maxExtent = _scrollController.position.maxScrollExtent;
     final offset = ((widget.highlightVerse! - 1) * 72.0).clamp(0.0, maxExtent);
     _scrollController.animateTo(
@@ -109,8 +109,9 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
     }
     setState(() => _isSearching = true);
     _debounce = Timer(const Duration(milliseconds: 300), () async {
-      final results =
-          await ref.read(bibleServiceProvider).searchVerses(query.trim());
+      final results = await ref
+          .read(bibleServiceProvider)
+          .searchVerses(query.trim());
       if (mounted) {
         setState(() {
           _searchResults = results;
@@ -176,6 +177,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final color = theme.colorScheme.primary;
+    final l10n = AppLocalizations.of(context);
 
     final pinnedVerseAsync = ref.watch(pinnedVerseProvider);
     final isAlreadyPinned = pinnedVerseAsync.value?.id == _selectedVerse?.id;
@@ -184,10 +186,10 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       extendBody: true,
-      appBar: _buildAppBar(theme, color),
+      appBar: _buildAppBar(theme, color, l10n),
       body: _isSearchMode
-          ? _buildSearchBody(theme, color)
-          : _buildChapterBody(theme, color),
+          ? _buildSearchBody(theme, color, l10n)
+          : _buildChapterBody(theme, color, l10n),
       bottomNavigationBar: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         reverseDuration: const Duration(milliseconds: 250),
@@ -200,21 +202,18 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
           ).animate(animation);
           return FadeTransition(
             opacity: animation,
-            child: SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            ),
+            child: SlideTransition(position: offsetAnimation, child: child),
           );
         },
         child: showPinButton
-            ? _buildBottomBar(theme, color)
+            ? _buildBottomBar(theme, color, l10n)
             : const SizedBox.shrink(key: ValueKey('empty_bottom_bar')),
       ),
     );
   }
 
   // ── 하단 고정 바 ─────────────────────────────────────────────────
-  Widget _buildBottomBar(ThemeData theme, Color color) {
+  Widget _buildBottomBar(ThemeData theme, Color color, AppLocalizations l10n) {
     return Container(
       key: const ValueKey('pin_bottom_bar'),
       padding: EdgeInsets.only(
@@ -223,9 +222,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
         top: 12,
         bottom: 24 + MediaQuery.of(context).padding.bottom,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.transparent, // 배경 투명화
-      ),
+      decoration: const BoxDecoration(color: Colors.transparent),
       child: ElevatedButton(
         onPressed: () {
           if (mounted) {
@@ -240,12 +237,14 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
           backgroundColor: color,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 54),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)), // 더 둥글게
-          elevation: 6, // 버튼에만 그림자
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          elevation: 6,
           shadowColor: color.withValues(alpha: 0.4),
         ),
         child: Text(
-          '이 말씀 고정하기',
+          l10n.pinThisVerse,
           style: GoogleFonts.notoSans(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -256,7 +255,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
   }
 
   // ── AppBar ───────────────────────────────────────────────────────
-  AppBar _buildAppBar(ThemeData theme, Color color) {
+  AppBar _buildAppBar(ThemeData theme, Color color, AppLocalizations l10n) {
     if (_isSearchMode) {
       return AppBar(
         backgroundColor: theme.colorScheme.surface,
@@ -273,7 +272,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
           onChanged: _onSearchChanged,
           style: theme.textTheme.bodyMedium,
           decoration: InputDecoration(
-            hintText: '성경 단어 검색',
+            hintText: l10n.searchBible,
             hintStyle: TextStyle(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
@@ -321,7 +320,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '${widget.bookName} ${widget.chapter}장',
+                '${widget.bookName} ${l10n.chapterLabel(widget.chapter)}',
                 style: GoogleFonts.notoSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -346,7 +345,11 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
   }
 
   // ── 장 본문 ──────────────────────────────────────────────────────
-  Widget _buildChapterBody(ThemeData theme, Color color) {
+  Widget _buildChapterBody(
+    ThemeData theme,
+    Color color,
+    AppLocalizations l10n,
+  ) {
     return FutureBuilder<List<Verse>>(
       future: _chapterFuture,
       builder: (context, snap) {
@@ -357,8 +360,10 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
         }
         if (snap.hasError) {
           return Center(
-            child: Text('오류: ${snap.error}',
-                style: TextStyle(color: theme.colorScheme.error)),
+            child: Text(
+              l10n.errorMsg(snap.error.toString()),
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
           );
         }
         final verses = snap.data ?? [];
@@ -396,7 +401,6 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
               onTap: () {
                 setState(() {
                   if (_selectedVerseNum == v.verse) {
-                    // 이미 선택된 절을 다시 누르면 해제
                     _selectedVerseNum = null;
                     _selectedVerse = null;
                   } else {
@@ -413,17 +417,20 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
   }
 
   // ── 검색 결과 ────────────────────────────────────────────────────
-  Widget _buildSearchBody(ThemeData theme, Color color) {
+  Widget _buildSearchBody(ThemeData theme, Color color, AppLocalizations l10n) {
     if (_searchController.text.trim().isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_rounded,
-                size: 56, color: theme.colorScheme.onSurface.withValues(alpha: 0.15)),
+            Icon(
+              Icons.search_rounded,
+              size: 56,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
+            ),
             const SizedBox(height: 12),
             Text(
-              '검색어를 입력하세요',
+              l10n.enterSearchTerm,
               style: TextStyle(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
                 fontSize: 15,
@@ -443,7 +450,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
     if (_searchResults.isEmpty) {
       return Center(
         child: Text(
-          '검색 결과가 없습니다',
+          l10n.noSearchResults,
           style: TextStyle(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             fontSize: 15,
@@ -461,7 +468,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
           child: Text(
-            '${_searchResults.length}개 구절 검색됨',
+            l10n.searchResultCount(_searchResults.length),
             style: TextStyle(
               fontSize: 12,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
@@ -517,7 +524,9 @@ class _VerseRow extends StatelessWidget {
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isHighlighted ? highlightColor.withValues(alpha: 0.3) : Colors.transparent,
+            color: isHighlighted
+                ? highlightColor.withValues(alpha: 0.3)
+                : Colors.transparent,
             width: 1,
           ),
         ),
@@ -546,7 +555,9 @@ class _VerseRow extends StatelessWidget {
                   fontSize: 16,
                   height: 1.9,
                   color: theme.colorScheme.onSurface,
-                  fontWeight: isHighlighted ? FontWeight.w500 : FontWeight.normal,
+                  fontWeight: isHighlighted
+                      ? FontWeight.w500
+                      : FontWeight.normal,
                 ),
               ),
             ),
@@ -596,8 +607,7 @@ class _BookAccordion extends StatelessWidget {
               ),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
@@ -614,14 +624,12 @@ class _BookAccordion extends StatelessWidget {
           ],
         ),
         iconColor: color,
-        collapsedIconColor:
-            theme.colorScheme.onSurface.withValues(alpha: 0.35),
+        collapsedIconColor: theme.colorScheme.onSurface.withValues(alpha: 0.35),
         children: verses.map((v) {
           return InkWell(
             onTap: () => onVerseTap(v),
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -695,12 +703,14 @@ class _HighlightedText extends StatelessWidget {
         break;
       }
       if (idx > start) {
-        spans.add(
-            TextSpan(text: text.substring(start, idx), style: baseStyle));
+        spans.add(TextSpan(text: text.substring(start, idx), style: baseStyle));
       }
-      spans.add(TextSpan(
+      spans.add(
+        TextSpan(
           text: text.substring(idx, idx + keyword.length),
-          style: highlightStyle));
+          style: highlightStyle,
+        ),
+      );
       start = idx + keyword.length;
     }
 

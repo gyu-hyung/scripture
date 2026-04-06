@@ -17,5 +17,5 @@ final bibleServiceProvider = Provider<BibleService>((ref) {
 });
 
 final widgetServiceProvider = Provider<WidgetService>((ref) {
-  return WidgetService(ref.read(bibleServiceProvider));
+  return WidgetService(ref.watch(bibleServiceProvider));
 });

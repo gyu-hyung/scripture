@@ -283,6 +283,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Verse information unavailable'**
   String get noVerseInfo;
+
+  /// Hint text on home screen pinned verse
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to read'**
+  String get tapToRead;
+
+  /// Button to pin selected verse
+  ///
+  /// In en, this message translates to:
+  /// **'Pin This Verse'**
+  String get pinThisVerse;
+
+  /// Search input placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Search the Bible'**
+  String get searchBible;
+
+  /// Empty search state message
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a search term'**
+  String get enterSearchTerm;
+
+  /// Empty search results message
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noSearchResults;
+
+  /// Search result count label
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verses found'**
+  String searchResultCount(int count);
+
+  /// Chapter label with number
+  ///
+  /// In en, this message translates to:
+  /// **'Ch. {chapter}'**
+  String chapterLabel(int chapter);
+
+  /// Verse label with number
+  ///
+  /// In en, this message translates to:
+  /// **'v. {verse}'**
+  String verseLabel(int verse);
+
+  /// Bible navigator sheet title
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate Bible'**
+  String get bibleNavigator;
+
+  /// Column header for book
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get columnBook;
+
+  /// Column header for chapter
+  ///
+  /// In en, this message translates to:
+  /// **'Ch.'**
+  String get columnChapter;
+
+  /// Column header for verse
+  ///
+  /// In en, this message translates to:
+  /// **'V.'**
+  String get columnVerse;
+
+  /// Placeholder when no data available
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
+
+  /// Bible section: Pentateuch
+  ///
+  /// In en, this message translates to:
+  /// **'Pentateuch'**
+  String get sectionPentateuch;
+
+  /// Bible section: Historical Books
+  ///
+  /// In en, this message translates to:
+  /// **'Historical'**
+  String get sectionHistorical;
+
+  /// Bible section: Poetic Books
+  ///
+  /// In en, this message translates to:
+  /// **'Poetic'**
+  String get sectionPoetic;
+
+  /// Bible section: Major Prophets
+  ///
+  /// In en, this message translates to:
+  /// **'Major Prophets'**
+  String get sectionMajorProphets;
+
+  /// Bible section: Minor Prophets
+  ///
+  /// In en, this message translates to:
+  /// **'Minor Prophets'**
+  String get sectionMinorProphets;
+
+  /// Bible section: Gospels
+  ///
+  /// In en, this message translates to:
+  /// **'Gospels'**
+  String get sectionGospels;
+
+  /// Bible section: Acts
+  ///
+  /// In en, this message translates to:
+  /// **'Acts'**
+  String get sectionActs;
+
+  /// Bible section: Pauline Epistles
+  ///
+  /// In en, this message translates to:
+  /// **'Pauline Epistles'**
+  String get sectionPauline;
+
+  /// Bible section: General Epistles
+  ///
+  /// In en, this message translates to:
+  /// **'General Epistles'**
+  String get sectionGeneral;
+
+  /// Bible section: Revelation
+  ///
+  /// In en, this message translates to:
+  /// **'Revelation'**
+  String get sectionRevelation;
+
+  /// Widget theme selection screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Widget Theme'**
+  String get widgetThemeTitle;
+
+  /// Button to confirm pinning verse to widget
+  ///
+  /// In en, this message translates to:
+  /// **'Pin to Widget'**
+  String get pinToWidget;
+
+  /// Widget theme name
+  ///
+  /// In en, this message translates to:
+  /// **'Modern Dark'**
+  String get themeModernDark;
+
+  /// Widget theme name
+  ///
+  /// In en, this message translates to:
+  /// **'Minimalist Light'**
+  String get themeMinimalistLight;
+
+  /// Widget theme name
+  ///
+  /// In en, this message translates to:
+  /// **'Serene Blue'**
+  String get themeSereneBlue;
+
+  /// Widget theme name
+  ///
+  /// In en, this message translates to:
+  /// **'Nature Green'**
+  String get themeNatureGreen;
 }
 
 class _AppLocalizationsDelegate

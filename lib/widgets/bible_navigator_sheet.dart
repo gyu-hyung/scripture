@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../l10n/app_localizations.dart';
 import '../models/book.dart';
 import '../providers/bible_provider.dart';
 
@@ -56,7 +57,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
   void initState() {
     super.initState();
     _selectedChapter = widget.initialChapter;
-    _selectedVerse = null; // 초기 열릴 때부터 선택 해제
+    _selectedVerse = null;
     _init();
   }
 
@@ -83,7 +84,6 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
       _loading = false;
     });
 
-    // 초기 선택 항목으로 스크롤
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToSelected();
     });
@@ -135,9 +135,8 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
       _chapterCount = chapCount;
       _selectedChapter = newChap;
       _verseCount = verseCount;
-      _selectedVerse = null; // 책 바꿀 땐 절 선택 해제
+      _selectedVerse = null;
     });
-    // 장·절 리스트를 맨 위로
     if (_chapScroll.hasClients) _chapScroll.jumpTo(0);
     if (_verseScroll.hasClients) _verseScroll.jumpTo(0);
   }
@@ -149,7 +148,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
     setState(() {
       _selectedChapter = chapter;
       _verseCount = verseCount;
-      _selectedVerse = null; // 장 바꿀 땐 절 선택 해제
+      _selectedVerse = null;
     });
     if (_verseScroll.hasClients) _verseScroll.jumpTo(0);
   }
@@ -173,30 +172,46 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
   }
 
   // ── 구약/신약 섹션 구분 정보 ─────────────────────────────────────
-  static const _sections = <String, List<int>>{
-    '모세오경': [1, 2, 3, 4, 5],
-    '역사서': [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
-    '시가서': [18, 19, 20, 21, 22],
-    '대선지서': [23, 24, 25, 26, 27],
-    '소선지서': [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
-    '복음서': [40, 41, 42, 43],
-    '역사서(신)': [44],
-    '바울서신': [45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57],
-    '공동서신': [58, 59, 60, 61, 62, 63, 64, 65],
-    '예언서(신)': [66],
+  // 섹션 키 → bookId 목록 (l10n 키와 매핑)
+  static const _sectionBookIds = <String, List<int>>{
+    'pentateuch': [1, 2, 3, 4, 5],
+    'historical': [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+    'poetic': [18, 19, 20, 21, 22],
+    'majorProphets': [23, 24, 25, 26, 27],
+    'minorProphets': [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+    'gospels': [40, 41, 42, 43],
+    'acts': [44],
+    'pauline': [45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57],
+    'general': [58, 59, 60, 61, 62, 63, 64, 65],
+    'revelation': [66],
   };
 
-  String? _sectionForBook(int bookId) {
-    for (final entry in _sections.entries) {
+  String? _sectionKeyForBook(int bookId) {
+    for (final entry in _sectionBookIds.entries) {
       if (entry.value.contains(bookId)) return entry.key;
     }
     return null;
   }
 
+  String _localizeSectionKey(AppLocalizations l10n, String key) => switch (key) {
+    'pentateuch' => l10n.sectionPentateuch,
+    'historical' => l10n.sectionHistorical,
+    'poetic' => l10n.sectionPoetic,
+    'majorProphets' => l10n.sectionMajorProphets,
+    'minorProphets' => l10n.sectionMinorProphets,
+    'gospels' => l10n.sectionGospels,
+    'acts' => l10n.sectionActs,
+    'pauline' => l10n.sectionPauline,
+    'general' => l10n.sectionGeneral,
+    'revelation' => l10n.sectionRevelation,
+    _ => key,
+  };
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final color = theme.colorScheme.primary;
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.82,
@@ -222,7 +237,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
             child: Row(
               children: [
                 Text(
-                  '성경 이동',
+                  l10n.bibleNavigator,
                   style: GoogleFonts.notoSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -245,11 +260,11 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
-                _ColHeader('책', color: color),
+                _ColHeader(l10n.columnBook, color: color),
                 _vertDivider(theme),
-                _ColHeader('장', flex: 1, color: color),
+                _ColHeader(l10n.columnChapter, flex: 1, color: color),
                 _vertDivider(theme),
-                _ColHeader('절', flex: 1, color: color),
+                _ColHeader(l10n.columnVerse, flex: 1, color: color),
               ],
             ),
           ),
@@ -267,17 +282,14 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
                 : Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 책 컬럼 (flex 3)
-                      Expanded(flex: 3, child: _buildBookColumn(theme, color)),
+                      Expanded(flex: 3, child: _buildBookColumn(theme, color, l10n)),
                       _vertDivider(theme),
-                      // 장 컬럼 (flex 2)
                       Expanded(
                         flex: 2,
-                        child: _buildChapterColumn(theme, color),
+                        child: _buildChapterColumn(theme, color, l10n),
                       ),
                       _vertDivider(theme),
-                      // 절 컬럼 (flex 2)
-                      Expanded(flex: 2, child: _buildVerseColumn(theme, color)),
+                      Expanded(flex: 2, child: _buildVerseColumn(theme, color, l10n)),
                     ],
                   ),
           ),
@@ -292,20 +304,23 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
   );
 
   // ── 책 컬럼 ──────────────────────────────────────────────────────
-  Widget _buildBookColumn(ThemeData theme, Color color) {
+  Widget _buildBookColumn(ThemeData theme, Color color, AppLocalizations l10n) {
     final items = <Widget>[];
     String? currentSection;
 
     for (final book in _books) {
-      final section = _sectionForBook(book.id);
-      if (section != currentSection) {
-        currentSection = section;
-        items.add(_SectionHeader(label: section ?? '', theme: theme));
+      final sectionKey = _sectionKeyForBook(book.id);
+      if (sectionKey != currentSection) {
+        currentSection = sectionKey;
+        final label = sectionKey != null
+            ? _localizeSectionKey(l10n, sectionKey)
+            : '';
+        items.add(_SectionHeader(label: label, theme: theme));
       }
       final isSelected = book.id == _selectedBook.id;
       final isNewTestament = book.id >= 40;
-      final abbreviationColor = isNewTestament 
-          ? Colors.red.withValues(alpha: 0.6) 
+      final abbreviationColor = isNewTestament
+          ? Colors.red.withValues(alpha: 0.6)
           : Colors.blue.withValues(alpha: 0.6);
 
       items.add(
@@ -320,7 +335,6 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
                 : Colors.transparent,
             child: Row(
               children: [
-                // 약자
                 SizedBox(
                   width: 24,
                   child: Text(
@@ -361,11 +375,11 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
   }
 
   // ── 장 컬럼 ──────────────────────────────────────────────────────
-  Widget _buildChapterColumn(ThemeData theme, Color color) {
+  Widget _buildChapterColumn(ThemeData theme, Color color, AppLocalizations l10n) {
     if (_chapterCount == 0) {
       return Center(
         child: Text(
-          '데이터 없음',
+          l10n.noData,
           style: TextStyle(
             fontSize: 12,
             color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
@@ -389,7 +403,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
                 ? color.withValues(alpha: 0.10)
                 : Colors.transparent,
             child: Text(
-              '$ch장',
+              l10n.chapterLabel(ch),
               style: GoogleFonts.notoSans(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
@@ -403,7 +417,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
   }
 
   // ── 절 컬럼 ──────────────────────────────────────────────────────
-  Widget _buildVerseColumn(ThemeData theme, Color color) {
+  Widget _buildVerseColumn(ThemeData theme, Color color, AppLocalizations l10n) {
     if (_verseCount == 0) {
       return Center(
         child: Text(
@@ -430,7 +444,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
                 ? color.withValues(alpha: 0.10)
                 : Colors.transparent,
             child: Text(
-              '$v절',
+              l10n.verseLabel(v),
               style: GoogleFonts.notoSans(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,

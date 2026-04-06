@@ -112,4 +112,97 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get noVerseInfo => '절 정보를 불러올 수 없습니다';
+
+  @override
+  String get tapToRead => '탭하여 본문 보기';
+
+  @override
+  String get pinThisVerse => '이 말씀 고정하기';
+
+  @override
+  String get searchBible => '성경 단어 검색';
+
+  @override
+  String get enterSearchTerm => '검색어를 입력하세요';
+
+  @override
+  String get noSearchResults => '검색 결과가 없습니다';
+
+  @override
+  String searchResultCount(int count) {
+    return '$count개 구절 검색됨';
+  }
+
+  @override
+  String chapterLabel(int chapter) {
+    return '$chapter장';
+  }
+
+  @override
+  String verseLabel(int verse) {
+    return '$verse절';
+  }
+
+  @override
+  String get bibleNavigator => '성경 이동';
+
+  @override
+  String get columnBook => '책';
+
+  @override
+  String get columnChapter => '장';
+
+  @override
+  String get columnVerse => '절';
+
+  @override
+  String get noData => '데이터 없음';
+
+  @override
+  String get sectionPentateuch => '모세오경';
+
+  @override
+  String get sectionHistorical => '역사서';
+
+  @override
+  String get sectionPoetic => '시가서';
+
+  @override
+  String get sectionMajorProphets => '대선지서';
+
+  @override
+  String get sectionMinorProphets => '소선지서';
+
+  @override
+  String get sectionGospels => '복음서';
+
+  @override
+  String get sectionActs => '역사서(신)';
+
+  @override
+  String get sectionPauline => '바울서신';
+
+  @override
+  String get sectionGeneral => '공동서신';
+
+  @override
+  String get sectionRevelation => '예언서(신)';
+
+  @override
+  String get widgetThemeTitle => '위젯 테마 선택';
+
+  @override
+  String get pinToWidget => '위젯에 고정하기';
+
+  @override
+  String get themeModernDark => '모던 다크';
+
+  @override
+  String get themeMinimalistLight => '미니멀 라이트';
+
+  @override
+  String get themeSereneBlue => '세린 블루';
+
+  @override
+  String get themeNatureGreen => '네이처 그린';
 }

@@ -126,24 +126,23 @@ class _PinnedVerseCenter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Center(
       child: GestureDetector(
         onTap: onTap,
-        behavior: HitTestBehavior.opaque, // 빈 공간도 터치 인식
+        behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40), // 넉넉한 상하 여백
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 인용 아이콘
               Icon(
                 Icons.format_quote_rounded,
                 size: 28,
                 color: color.withValues(alpha: 0.25),
               ),
               const SizedBox(height: 20),
-
-              // 본문 텍스트
               Text(
                 verse.text,
                 textAlign: TextAlign.center,
@@ -154,8 +153,6 @@ class _PinnedVerseCenter extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // 참조 (창세기 1:1)
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -172,11 +169,9 @@ class _PinnedVerseCenter extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 32),
-              // 탭 힌트
               Text(
-                '탭하여 본문 보기',
+                l10n.tapToRead,
                 style: TextStyle(
                   fontSize: 12,
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.25),

@@ -115,5 +115,107 @@
   "@noChapterInfo": { "description": "Error when chapter info cannot be loaded" },
 
   "noVerseInfo": "Verse information unavailable",
-  "@noVerseInfo": { "description": "Error when verse info cannot be loaded" }
+  "@noVerseInfo": { "description": "Error when verse info cannot be loaded" },
+
+  "tapToRead": "Tap to read",
+  "@tapToRead": { "description": "Hint text on home screen pinned verse" },
+
+  "pinThisVerse": "Pin This Verse",
+  "@pinThisVerse": { "description": "Button to pin selected verse" },
+
+  "searchBible": "Search the Bible",
+  "@searchBible": { "description": "Search input placeholder" },
+
+  "enterSearchTerm": "Enter a search term",
+  "@enterSearchTerm": { "description": "Empty search state message" },
+
+  "noSearchResults": "No results found",
+  "@noSearchResults": { "description": "Empty search results message" },
+
+  "searchResultCount": "{count} verses found",
+  "@searchResultCount": {
+    "description": "Search result count label",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "chapterLabel": "Ch. {chapter}",
+  "@chapterLabel": {
+    "description": "Chapter label with number",
+    "placeholders": {
+      "chapter": { "type": "int" }
+    }
+  },
+
+  "verseLabel": "v. {verse}",
+  "@verseLabel": {
+    "description": "Verse label with number",
+    "placeholders": {
+      "verse": { "type": "int" }
+    }
+  },
+
+  "bibleNavigator": "Navigate Bible",
+  "@bibleNavigator": { "description": "Bible navigator sheet title" },
+
+  "columnBook": "Book",
+  "@columnBook": { "description": "Column header for book" },
+
+  "columnChapter": "Ch.",
+  "@columnChapter": { "description": "Column header for chapter" },
+
+  "columnVerse": "V.",
+  "@columnVerse": { "description": "Column header for verse" },
+
+  "noData": "No data",
+  "@noData": { "description": "Placeholder when no data available" },
+
+  "sectionPentateuch": "Pentateuch",
+  "@sectionPentateuch": { "description": "Bible section: Pentateuch" },
+
+  "sectionHistorical": "Historical",
+  "@sectionHistorical": { "description": "Bible section: Historical Books" },
+
+  "sectionPoetic": "Poetic",
+  "@sectionPoetic": { "description": "Bible section: Poetic Books" },
+
+  "sectionMajorProphets": "Major Prophets",
+  "@sectionMajorProphets": { "description": "Bible section: Major Prophets" },
+
+  "sectionMinorProphets": "Minor Prophets",
+  "@sectionMinorProphets": { "description": "Bible section: Minor Prophets" },
+
+  "sectionGospels": "Gospels",
+  "@sectionGospels": { "description": "Bible section: Gospels" },
+
+  "sectionActs": "Acts",
+  "@sectionActs": { "description": "Bible section: Acts" },
+
+  "sectionPauline": "Pauline Epistles",
+  "@sectionPauline": { "description": "Bible section: Pauline Epistles" },
+
+  "sectionGeneral": "General Epistles",
+  "@sectionGeneral": { "description": "Bible section: General Epistles" },
+
+  "sectionRevelation": "Revelation",
+  "@sectionRevelation": { "description": "Bible section: Revelation" },
+
+  "widgetThemeTitle": "Widget Theme",
+  "@widgetThemeTitle": { "description": "Widget theme selection screen title" },
+
+  "pinToWidget": "Pin to Widget",
+  "@pinToWidget": { "description": "Button to confirm pinning verse to widget" },
+
+  "themeModernDark": "Modern Dark",
+  "@themeModernDark": { "description": "Widget theme name" },
+
+  "themeMinimalistLight": "Minimalist Light",
+  "@themeMinimalistLight": { "description": "Widget theme name" },
+
+  "themeSereneBlue": "Serene Blue",
+  "@themeSereneBlue": { "description": "Widget theme name" },
+
+  "themeNatureGreen": "Nature Green",
+  "@themeNatureGreen": { "description": "Widget theme name" }
 }

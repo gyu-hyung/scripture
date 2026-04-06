@@ -112,4 +112,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noVerseInfo => 'Verse information unavailable';
+
+  @override
+  String get tapToRead => 'Tap to read';
+
+  @override
+  String get pinThisVerse => 'Pin This Verse';
+
+  @override
+  String get searchBible => 'Search the Bible';
+
+  @override
+  String get enterSearchTerm => 'Enter a search term';
+
+  @override
+  String get noSearchResults => 'No results found';
+
+  @override
+  String searchResultCount(int count) {
+    return '$count verses found';
+  }
+
+  @override
+  String chapterLabel(int chapter) {
+    return 'Ch. $chapter';
+  }
+
+  @override
+  String verseLabel(int verse) {
+    return 'v. $verse';
+  }
+
+  @override
+  String get bibleNavigator => 'Navigate Bible';
+
+  @override
+  String get columnBook => 'Book';
+
+  @override
+  String get columnChapter => 'Ch.';
+
+  @override
+  String get columnVerse => 'V.';
+
+  @override
+  String get noData => 'No data';
+
+  @override
+  String get sectionPentateuch => 'Pentateuch';
+
+  @override
+  String get sectionHistorical => 'Historical';
+
+  @override
+  String get sectionPoetic => 'Poetic';
+
+  @override
+  String get sectionMajorProphets => 'Major Prophets';
+
+  @override
+  String get sectionMinorProphets => 'Minor Prophets';
+
+  @override
+  String get sectionGospels => 'Gospels';
+
+  @override
+  String get sectionActs => 'Acts';
+
+  @override
+  String get sectionPauline => 'Pauline Epistles';
+
+  @override
+  String get sectionGeneral => 'General Epistles';
+
+  @override
+  String get sectionRevelation => 'Revelation';
+
+  @override
+  String get widgetThemeTitle => 'Widget Theme';
+
+  @override
+  String get pinToWidget => 'Pin to Widget';
+
+  @override
+  String get themeModernDark => 'Modern Dark';
+
+  @override
+  String get themeMinimalistLight => 'Minimalist Light';
+
+  @override
+  String get themeSereneBlue => 'Serene Blue';
+
+  @override
+  String get themeNatureGreen => 'Nature Green';
 }

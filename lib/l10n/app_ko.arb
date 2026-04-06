@@ -73,5 +73,55 @@
 
   "setThisVerse": "이 말씀으로 설정하기",
   "noChapterInfo": "장 정보를 불러올 수 없습니다",
-  "noVerseInfo": "절 정보를 불러올 수 없습니다"
+  "noVerseInfo": "절 정보를 불러올 수 없습니다",
+
+  "tapToRead": "탭하여 본문 보기",
+  "pinThisVerse": "이 말씀 고정하기",
+  "searchBible": "성경 단어 검색",
+  "enterSearchTerm": "검색어를 입력하세요",
+  "noSearchResults": "검색 결과가 없습니다",
+  "searchResultCount": "{count}개 구절 검색됨",
+  "@searchResultCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "chapterLabel": "{chapter}장",
+  "@chapterLabel": {
+    "placeholders": {
+      "chapter": { "type": "int" }
+    }
+  },
+
+  "verseLabel": "{verse}절",
+  "@verseLabel": {
+    "placeholders": {
+      "verse": { "type": "int" }
+    }
+  },
+
+  "bibleNavigator": "성경 이동",
+  "columnBook": "책",
+  "columnChapter": "장",
+  "columnVerse": "절",
+  "noData": "데이터 없음",
+
+  "sectionPentateuch": "모세오경",
+  "sectionHistorical": "역사서",
+  "sectionPoetic": "시가서",
+  "sectionMajorProphets": "대선지서",
+  "sectionMinorProphets": "소선지서",
+  "sectionGospels": "복음서",
+  "sectionActs": "역사서(신)",
+  "sectionPauline": "바울서신",
+  "sectionGeneral": "공동서신",
+  "sectionRevelation": "예언서(신)",
+
+  "widgetThemeTitle": "위젯 테마 선택",
+  "pinToWidget": "위젯에 고정하기",
+  "themeModernDark": "모던 다크",
+  "themeMinimalistLight": "미니멀 라이트",
+  "themeSereneBlue": "세린 블루",
+  "themeNatureGreen": "네이처 그린"
 }
