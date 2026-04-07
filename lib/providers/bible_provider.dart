@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/translation.dart';
 import '../services/bible_service.dart';
+import '../services/live_activity_service.dart';
 import '../services/widget_service.dart';
 import 'translation_provider.dart';
 
@@ -18,4 +19,8 @@ final bibleServiceProvider = Provider<BibleService>((ref) {
 
 final widgetServiceProvider = Provider<WidgetService>((ref) {
   return WidgetService(ref.watch(bibleServiceProvider));
+});
+
+final liveActivityServiceProvider = Provider<LiveActivityService>((ref) {
+  return LiveActivityService();
 });

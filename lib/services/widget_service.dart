@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/verse.dart';
@@ -138,6 +141,25 @@ class WidgetService {
     } catch (e) {
       // Widget might not be placed yet
     }
+  }
+
+  /// 선택한 사진을 App Group 공유 컨테이너에 저장하고 위젯을 갱신합니다.
+  Future<void> saveCustomPhoto(Uint8List jpegBytes) async {
+    const channel = MethodChannel('com.scripture.liveActivity');
+    try {
+      await channel.invokeMethod<void>('saveCustomPhoto', {
+        'data': jpegBytes,
+      });
+    } on PlatformException catch (e) {
+      print('[WidgetService] saveCustomPhoto failed: ${e.message}');
+    } on MissingPluginException {
+      // 시뮬레이터 또는 미지원 환경
+    }
+  }
+
+  Future<String> getCurrentThemeId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(AppConstants.keyBackgroundStyle) ?? AppConstants.themeModernDark;
   }
 
   Future<bool> _needsUpdate() async {

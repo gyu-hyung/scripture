@@ -1,5 +1,9 @@
 import WidgetKit
 import SwiftUI
+import UIKit
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
 
 // MARK: - Data Model
 struct VerseEntry: TimelineEntry {
@@ -61,6 +65,17 @@ struct ThemeColors {
     let accent: Color
 }
 
+// MARK: - Custom Photo Helper
+
+func loadCustomPhoto() -> Image? {
+    guard let containerURL = FileManager.default.containerURL(
+        forSecurityApplicationGroupIdentifier: "group.com.scripture.scripture"
+    ) else { return nil }
+    let fileURL = containerURL.appendingPathComponent("widget_custom_bg.jpg")
+    guard let uiImage = UIImage(contentsOfFile: fileURL.path) else { return nil }
+    return Image(uiImage: uiImage)
+}
+
 func getThemeColors(for themeId: String) -> ThemeColors {
     switch themeId {
     case "minimalist_light":
@@ -81,6 +96,13 @@ func getThemeColors(for themeId: String) -> ThemeColors {
             text: .white,
             accent: Color(red: 0.78, green: 0.90, blue: 0.79)
         )
+    case "custom_photo":
+        // 사진 위에 흰색 텍스트 사용 (배경은 ZStack에서 별도 처리)
+        return ThemeColors(
+            background: Color(red: 0.08, green: 0.08, blue: 0.12),
+            text: .white,
+            accent: Color(white: 0.92)
+        )
     default: // modern_dark
         return ThemeColors(
             background: Color(red: 0.08, green: 0.08, blue: 0.12),
@@ -97,9 +119,24 @@ struct ScriptureHomeWidgetView: View {
 
     var body: some View {
         let styles = getThemeColors(for: entry.themeId)
-        
+        let isPhoto = entry.themeId == "custom_photo"
+
         ZStack {
-            styles.background
+            // 배경
+            if isPhoto, let photo = loadCustomPhoto() {
+                photo
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.55)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            } else {
+                styles.background
+            }
 
             VStack(alignment: .leading, spacing: 0) {
                 Spacer()
@@ -172,7 +209,7 @@ struct ScriptureWidgetEntryView: View {
 
 // MARK: - Widget Configuration
 struct ScriptureVerseWidget: Widget {
-    let kind: String = "ScriptureWidget"
+    let kind: String = "ScriptureWidgetV2"
 
     static var supportedFamilies: [WidgetFamily] {
         #if os(iOS)
@@ -209,3 +246,175 @@ struct ScriptureVerseWidget: Widget {
         themeId: "modern_dark"
     )
 }
+
+// MARK: - Live Activity UI (Consolidated)
+
+#if canImport(ActivityKit)
+@available(iOS 16.2, *)
+struct ScriptureDynamicDataView: View {
+    let state: ScriptureActivityAttributes.ContentState
+    let accentColor: Color
+    let textColor: Color
+
+    var body: some View {
+        if state.useTimer {
+            // 권한 거절 시: 세션 경과 타이머
+            VStack(alignment: .center, spacing: 2) {
+                Text("⏳")
+                    .font(.system(size: 14))
+                Text(timerInterval: state.sessionStartDate...state.sessionStartDate.addingTimeInterval(8 * 3600),
+                     countsDown: false)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(accentColor)
+                    .monospacedDigit()
+                    .multilineTextAlignment(.center)
+                Text("동행 중")
+                    .font(.system(size: 9))
+                    .foregroundColor(textColor.opacity(0.6))
+            }
+            .frame(width: 60)
+        } else {
+            // 권한 허용 시: 걸음 수
+            VStack(alignment: .center, spacing: 2) {
+                Text("👣")
+                    .font(.system(size: 16))
+                Text(state.stepCount >= 1000
+                     ? String(format: "%.1fk", Double(state.stepCount) / 1000.0)
+                     : "\(state.stepCount)")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(accentColor)
+                    .monospacedDigit()
+                Text("걸음")
+                    .font(.system(size: 9))
+                    .foregroundColor(textColor.opacity(0.6))
+            }
+            .frame(width: 52)
+        }
+    }
+}
+
+@available(iOS 16.2, *)
+struct ScriptureLiveActivityLockView: View {
+    let context: ActivityViewContext<ScriptureActivityAttributes>
+
+    var body: some View {
+        let theme = getThemeColors(for: context.attributes.themeId)
+        let isPhoto = context.attributes.themeId == "custom_photo"
+
+        ZStack {
+            // 배경 레이어
+            if isPhoto {
+                if let photo = loadCustomPhoto() {
+                    photo
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipped()
+                } else {
+                    theme.background
+                }
+            } else {
+                theme.background
+            }
+
+            // 메인 컨텐츠 레이어
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center, spacing: 12) {
+                    // 좌측: 말씀 (참조 + 본문)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(context.attributes.verseRef)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(isPhoto ? .white.opacity(0.85) : theme.accent)
+                            .lineLimit(1)
+
+                        Text(context.attributes.verseText)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(isPhoto ? .white : theme.text)
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    // 우측: 걸음 수 또는 타이머
+                    ScriptureDynamicDataView(
+                        state: context.state,
+                        accentColor: isPhoto ? .white.opacity(0.85) : theme.accent,
+                        textColor: isPhoto ? .white : theme.text
+                    )
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+    }
+}
+
+@available(iOS 16.2, *)
+struct ScriptureActivityConfiguration: Widget {
+    var body: some WidgetConfiguration {
+        ActivityConfiguration(for: ScriptureActivityAttributes.self) { context in
+            ScriptureLiveActivityLockView(context: context)
+                .activityBackgroundTint(Color.clear)
+        } dynamicIsland: { context in
+            let theme = getThemeColors(for: context.attributes.themeId)
+
+            return DynamicIsland {
+                // Expanded (길게 터치 시)
+                DynamicIslandExpandedRegion(.center) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(context.attributes.verseRef)
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.accent)
+
+                        Text(context.attributes.verseText)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(theme.text)
+                            .lineLimit(3)
+                            .truncationMode(.tail)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 4)
+                }
+
+                DynamicIslandExpandedRegion(.trailing) {
+                    ScriptureDynamicDataView(
+                        state: context.state,
+                        accentColor: theme.accent,
+                        textColor: theme.text
+                    )
+                    .padding(.trailing, 4)
+                }
+            } compactLeading: {
+                // Compact 좌측: 책 아이콘
+                Text("📖")
+                    .font(.caption2)
+            } compactTrailing: {
+                // Compact 우측: 걸음 수 또는 타이머
+                if context.state.useTimer {
+                    Text("⏳")
+                        .font(.caption2)
+                } else {
+                    Text(context.state.stepCount >= 1000
+                         ? String(format: "%.1fk", Double(context.state.stepCount) / 1000.0)
+                         : "\(context.state.stepCount)")
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(theme.accent)
+                        .monospacedDigit()
+                }
+            } minimal: {
+                // Minimal: 아이콘만
+                Text("📖")
+                    .font(.caption2)
+            }
+            .keylineTint(theme.accent)
+        }
+    }
+}
+#endif

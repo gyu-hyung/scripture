@@ -457,6 +457,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nature Green'**
   String get themeNatureGreen;
+
+  /// Button to start a Live Activity session with selected verse
+  ///
+  /// In en, this message translates to:
+  /// **'Start My Day with This Verse'**
+  String get startSessionButton;
+
+  /// Soft prompt bottom sheet title before HealthKit permission
+  ///
+  /// In en, this message translates to:
+  /// **'Lock Screen Scripture Session'**
+  String get softPromptTitle;
+
+  /// Soft prompt bottom sheet body text
+  ///
+  /// In en, this message translates to:
+  /// **'Walk with today\'s verse on your lock screen for up to 8 hours while tracking your steps. Health data access is needed.'**
+  String get softPromptBody;
+
+  /// Soft prompt confirm button
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get softPromptConfirm;
+
+  /// Soft prompt cancel button
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get softPromptCancel;
+
+  /// Custom photo widget theme name
+  ///
+  /// In en, this message translates to:
+  /// **'My Photo'**
+  String get themeCustomPhoto;
+
+  /// Hint shown on custom photo picker button
+  ///
+  /// In en, this message translates to:
+  /// **'Select from Gallery'**
+  String get themeCustomPhotoHint;
 }
 
 class _AppLocalizationsDelegate

@@ -53,7 +53,14 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
   Future<void> pinVerse(Verse verse, {String? themeId}) async {
     state = const AsyncValue.loading();
     final widgetService = ref.read(widgetServiceProvider);
+    final liveActivityService = ref.read(liveActivityServiceProvider);
+
     await widgetService.pinVerse(verse, themeId: themeId);
+
+    // 고정 = 세션 시작 (Live Activity)
+    final resolvedTheme = themeId ?? await widgetService.getCurrentThemeId();
+    await liveActivityService.startSession(verse, resolvedTheme);
+
     state = AsyncValue.data(verse);
     ref.read(isPinnedProvider.notifier).refresh();
   }
@@ -61,7 +68,12 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
   Future<void> unpinVerse() async {
     state = const AsyncValue.loading();
     final widgetService = ref.read(widgetServiceProvider);
+    final liveActivityService = ref.read(liveActivityServiceProvider);
+
+    // 고정 해제 = 세션 종료
+    await liveActivityService.stopSession();
     await widgetService.unpinVerse();
+
     state = const AsyncValue.data(null);
     ref.read(isPinnedProvider.notifier).refresh();
   }

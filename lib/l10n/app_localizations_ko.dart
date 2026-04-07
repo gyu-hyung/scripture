@@ -205,4 +205,26 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get themeNatureGreen => '네이처 그린';
+
+  @override
+  String get startSessionButton => '말씀과 함께 일과 시작하기';
+
+  @override
+  String get softPromptTitle => '잠금화면 말씀 세션';
+
+  @override
+  String get softPromptBody =>
+      '잠금화면에서 8시간 동안 말씀과 동행하며 걸음 수를 기록합니다. 이를 위해 건강 데이터 연동이 필요합니다.';
+
+  @override
+  String get softPromptConfirm => '시작하기';
+
+  @override
+  String get softPromptCancel => '취소';
+
+  @override
+  String get themeCustomPhoto => '나의 사진';
+
+  @override
+  String get themeCustomPhotoHint => '갤러리에서 선택';
 }

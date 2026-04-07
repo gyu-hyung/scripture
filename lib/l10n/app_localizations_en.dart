@@ -205,4 +205,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeNatureGreen => 'Nature Green';
+
+  @override
+  String get startSessionButton => 'Start My Day with This Verse';
+
+  @override
+  String get softPromptTitle => 'Lock Screen Scripture Session';
+
+  @override
+  String get softPromptBody =>
+      'Walk with today\'s verse on your lock screen for up to 8 hours while tracking your steps. Health data access is needed.';
+
+  @override
+  String get softPromptConfirm => 'Start';
+
+  @override
+  String get softPromptCancel => 'Cancel';
+
+  @override
+  String get themeCustomPhoto => 'My Photo';
+
+  @override
+  String get themeCustomPhotoHint => 'Select from Gallery';
 }

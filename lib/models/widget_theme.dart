@@ -20,6 +20,7 @@ class WidgetTheme {
     AppConstants.themeMinimalistLight => l10n.themeMinimalistLight,
     AppConstants.themeSereneBlue => l10n.themeSereneBlue,
     AppConstants.themeNatureGreen => l10n.themeNatureGreen,
+    AppConstants.themeCustomPhoto => l10n.themeCustomPhoto,
     _ => id,
   };
 
@@ -51,10 +52,19 @@ class WidgetTheme {
     accentColor: Color(0xFFC8E6C9),
   );
 
+  // 사진 테마: 실제 배경은 선택한 사진, 텍스트 색상은 흰색 사용
+  static const customPhoto = WidgetTheme(
+    id: AppConstants.themeCustomPhoto,
+    background: Color(0xFF1A1A1A), // 사진 없을 때 폴백
+    textColor: Colors.white,
+    accentColor: Color(0xFFFFFFFF),
+  );
+
   static const List<WidgetTheme> all = [
     modernDark,
     minimalistLight,
     sereneBlue,
     natureGreen,
+    customPhoto,
   ];
 }

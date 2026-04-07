@@ -5,5 +5,6 @@ import SwiftUI
 struct ScriptureWidgetBundle: WidgetBundle {
     var body: some Widget {
         ScriptureVerseWidget()
+        ScriptureActivityConfiguration()
     }
 }

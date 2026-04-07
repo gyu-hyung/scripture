@@ -217,5 +217,26 @@
   "@themeSereneBlue": { "description": "Widget theme name" },
 
   "themeNatureGreen": "Nature Green",
-  "@themeNatureGreen": { "description": "Widget theme name" }
+  "@themeNatureGreen": { "description": "Widget theme name" },
+
+  "startSessionButton": "Start My Day with This Verse",
+  "@startSessionButton": { "description": "Button to start a Live Activity session with selected verse" },
+
+  "softPromptTitle": "Lock Screen Scripture Session",
+  "@softPromptTitle": { "description": "Soft prompt bottom sheet title before HealthKit permission" },
+
+  "softPromptBody": "Walk with today's verse on your lock screen for up to 8 hours while tracking your steps. Health data access is needed.",
+  "@softPromptBody": { "description": "Soft prompt bottom sheet body text" },
+
+  "softPromptConfirm": "Start",
+  "@softPromptConfirm": { "description": "Soft prompt confirm button" },
+
+  "softPromptCancel": "Cancel",
+  "@softPromptCancel": { "description": "Soft prompt cancel button" },
+
+  "themeCustomPhoto": "My Photo",
+  "@themeCustomPhoto": { "description": "Custom photo widget theme name" },
+
+  "themeCustomPhotoHint": "Select from Gallery",
+  "@themeCustomPhotoHint": { "description": "Hint shown on custom photo picker button" }
 }

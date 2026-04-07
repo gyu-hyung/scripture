@@ -2,7 +2,7 @@ class AppConstants {
   static const String appName = 'Scripture';
   static const String dbName = 'bible.db';
   static const String widgetAndroidName = 'ScriptureWidgetProvider';
-  static const String widgetIosName = 'ScriptureWidget';
+  static const String widgetIosName = 'ScriptureWidgetV2';
   static const String appGroupId = 'group.com.scripture.scripture';
 
   // SharedPreferences keys
@@ -29,6 +29,10 @@ class AppConstants {
   static const String themeMinimalistLight = 'minimalist_light';
   static const String themeSereneBlue = 'serene_blue';
   static const String themeNatureGreen = 'nature_green';
+  static const String themeCustomPhoto = 'custom_photo';
+
+  // Custom photo storage key (App Group shared)
+  static const String customPhotoBgFilename = 'widget_custom_bg.jpg';
 
   // Category keys (language-neutral, stored in DB and SharedPreferences)
   // Use l10n_utils.dart > localizeCategory() for display labels

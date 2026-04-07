@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +19,18 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _navigatorShown = false;
+  bool _isSessionActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSessionActive();
+  }
+
+  Future<void> _checkSessionActive() async {
+    final active = await ref.read(liveActivityServiceProvider).isSessionActive;
+    if (mounted) setState(() => _isSessionActive = active);
+  }
 
   void _navigateToChapter(Verse verse) {
     Navigator.of(context).push(
@@ -73,8 +87,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final l10n = AppLocalizations.of(context);
     final color = theme.colorScheme.primary;
 
+    // 고정 말씀 상태가 바뀔 때마다 세션 활성 여부 갱신
+    ref.listen(pinnedVerseProvider, (_, next) {
+      next.whenData((_) => _checkSessionActive());
+    });
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
+      appBar: _isSessionActive && Platform.isIOS
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    Icons.favorite_rounded,
+                    color: color.withValues(alpha: 0.6),
+                    size: 22,
+                  ),
+                  tooltip: '건강 권한 설정',
+                  onPressed: () => ref
+                      .read(liveActivityServiceProvider)
+                      .requestHealthKitPermission(),
+                ),
+                const SizedBox(width: 4),
+              ],
+            )
+          : null,
       body: SafeArea(
         child: pinnedAsync.when(
           loading: () => Center(

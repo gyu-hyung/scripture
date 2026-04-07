@@ -20,6 +20,13 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		F3EB701794AE93F85623BFEF /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56FD33E21177FFE5A34D9539 /* Pods_RunnerTests.framework */; };
+		A0A00002A0A00002A0A00002 /* ScriptureActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00001A0A00001A0A00001 /* ScriptureActivityAttributes.swift */; };
+		A0A00004A0A00004A0A00004 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00003A0A00003A0A00003 /* LiveActivityManager.swift */; };
+		A0A00006A0A00006A0A00006 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00005A0A00005A0A00005 /* HealthKitService.swift */; };
+		A0A00008A0A00008A0A00008 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0A00007A0A00007A0A00007 /* HealthKit.framework */; };
+		A0A00010A0A00010A0A00010 /* ScriptureWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00009A0A00009A0A00009 /* ScriptureWidget.swift */; };
+		A0A00012A0A00012A0A00012 /* ScriptureWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00011A0A00011A0A00011 /* ScriptureWidgetBundle.swift */; };
+		A0A00013A0A00013A0A00013 /* ScriptureActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00001A0A00001A0A00001 /* ScriptureActivityAttributes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -96,6 +103,12 @@
 		AEE7B262F04E12DFFC1DB04F /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BCFD2204AC0EBFE74D8AA2D2 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		DFD735A47D52CE41FA63076C /* Pods-ScriptureWidgetExtension.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScriptureWidgetExtension.profile.xcconfig"; path = "Target Support Files/Pods-ScriptureWidgetExtension/Pods-ScriptureWidgetExtension.profile.xcconfig"; sourceTree = "<group>"; };
+		A0A00001A0A00001A0A00001 /* ScriptureActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureWidget/ScriptureActivityAttributes.swift; sourceTree = SOURCE_ROOT; };
+		A0A00003A0A00003A0A00003 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
+		A0A00005A0A00005A0A00005 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		A0A00007A0A00007A0A00007 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		A0A00009A0A00009A0A00009 /* ScriptureWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureWidget/ScriptureWidget.swift; sourceTree = SOURCE_ROOT; };
+		A0A00011A0A00011A0A00011 /* ScriptureWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureWidget/ScriptureWidgetBundle.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -139,6 +152,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6B89DABE417F6723656DF95E /* Pods_Runner.framework in Frameworks */,
+				A0A00008A0A00008A0A00008 /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -169,6 +183,7 @@
 				02C492782F736318004F026F /* WidgetKit.framework */,
 				02C4927A2F736318004F026F /* SwiftUI.framework */,
 				93251FC5860A74AE5CBE656C /* Pods_ScriptureWidgetExtension.framework */,
+				A0A00007A0A00007A0A00007 /* HealthKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -195,6 +210,7 @@
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				EEED42223D0AC4608011881C /* Pods */,
 				506C4ED272D210C16A7177FB /* Frameworks */,
+				A0A00001A0A00001A0A00001 /* ScriptureActivityAttributes.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -220,6 +236,8 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				A0A00003A0A00003A0A00003 /* LiveActivityManager.swift */,
+				A0A00005A0A00005A0A00005 /* HealthKitService.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -502,6 +520,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0A00010A0A00010A0A00010 /* ScriptureWidget.swift in Sources */,
+				A0A00012A0A00012A0A00012 /* ScriptureWidgetBundle.swift in Sources */,
+				A0A00013A0A00013A0A00013 /* ScriptureActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,6 +540,9 @@
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				A0A00002A0A00002A0A00002 /* ScriptureActivityAttributes.swift in Sources */,
+				A0A00004A0A00004A0A00004 /* LiveActivityManager.swift in Sources */,
+				A0A00006A0A00006A0A00006 /* HealthKitService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
