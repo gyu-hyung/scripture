@@ -29,6 +29,7 @@ class LiveActivityManager {
                 await activity.end(dismissalPolicy: .immediate)
             }
 
+            NSLog("[LiveActivityDebug] Attempting to start...")
             do {
                 let activity = try Activity<ScriptureActivityAttributes>.request(
                     attributes: attributes,
@@ -36,7 +37,9 @@ class LiveActivityManager {
                     pushType: nil
                 )
                 await MainActor.run { self.currentActivity = activity }
+                NSLog("[LiveActivityDebug] Success!")
             } catch {
+                NSLog("[LiveActivityDebug] Failed to start: \(error.localizedDescription)")
                 print("[LiveActivity] Failed to start: \(error.localizedDescription)")
             }
         }

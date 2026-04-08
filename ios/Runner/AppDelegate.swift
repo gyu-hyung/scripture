@@ -43,8 +43,10 @@ import ActivityKit
                 result(FlutterError(code: "INVALID_ARGS", message: "verseText, verseRef, themeId required", details: nil))
                 return
             }
+            NSLog("[LiveActivityDebug] Flutter triggered startSession")
 
             HealthKitService.shared.requestAuthorization { authorized in
+                NSLog("[LiveActivityDebug] HealthKit auth result: \(authorized)")
                 DispatchQueue.main.async {
                     LiveActivityManager.shared.startActivity(
                         verseText: verseText,
@@ -84,7 +86,8 @@ import ActivityKit
             ) {
                 let fileURL = containerURL.appendingPathComponent("widget_custom_bg.jpg")
                 do {
-                    try data.data.write(to: fileURL)
+                    // .atomic으로 안전하게 쓰고, 잠금화면에서도 위젯이 읽을 수 있게 .noFileProtection 설정
+                    try data.data.write(to: fileURL, options: [.atomic, .noFileProtection])
                     result(nil)
                 } catch {
                     result(FlutterError(code: "WRITE_FAILED", message: error.localizedDescription, details: nil))

@@ -72,7 +72,23 @@ func loadCustomPhoto() -> Image? {
         forSecurityApplicationGroupIdentifier: "group.com.scripture.scripture"
     ) else { return nil }
     let fileURL = containerURL.appendingPathComponent("widget_custom_bg.jpg")
-    guard let uiImage = UIImage(contentsOfFile: fileURL.path) else { return nil }
+    
+    // 안전한 메모리 사용을 위해 썸네일 크기로 다운샘플링하여 불러옵니다.
+    let options: [CFString: Any] = [
+        kCGImageSourceCreateThumbnailFromImageIfAbsent: true,
+        kCGImageSourceCreateThumbnailWithTransform: true,
+        kCGImageSourceShouldCacheImmediately: true,
+        kCGImageSourceThumbnailMaxPixelSize: 800
+    ]
+    
+    // 파일 권한 문제나 캐싱 문제를 피하기 위해 Data로 먼저 읽어들입니다.
+    guard let data = try? Data(contentsOf: fileURL),
+          let source = CGImageSourceCreateWithData(data as CFData, nil),
+          let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+        return nil
+    }
+    
+    let uiImage = UIImage(cgImage: cgImage)
     return Image(uiImage: uiImage)
 }
 
@@ -262,15 +278,18 @@ struct ScriptureDynamicDataView: View {
             VStack(alignment: .center, spacing: 2) {
                 Text("⏳")
                     .font(.system(size: 14))
+                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
                 Text(timerInterval: state.sessionStartDate...state.sessionStartDate.addingTimeInterval(8 * 3600),
                      countsDown: false)
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(accentColor)
                     .monospacedDigit()
                     .multilineTextAlignment(.center)
+                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
                 Text("동행 중")
                     .font(.system(size: 9))
                     .foregroundColor(textColor.opacity(0.6))
+                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
             }
             .frame(width: 60)
         } else {
@@ -278,15 +297,17 @@ struct ScriptureDynamicDataView: View {
             VStack(alignment: .center, spacing: 2) {
                 Text("👣")
                     .font(.system(size: 16))
+                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
                 Text(state.stepCount >= 1000
                      ? String(format: "%.1fk", Double(state.stepCount) / 1000.0)
                      : "\(state.stepCount)")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(accentColor)
-                    .monospacedDigit()
+                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
                 Text("걸음")
                     .font(.system(size: 9))
                     .foregroundColor(textColor.opacity(0.6))
+                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
             }
             .frame(width: 52)
         }
@@ -310,6 +331,7 @@ struct ScriptureLiveActivityLockView: View {
                         .aspectRatio(contentMode: .fill)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .clipped()
+                        .overlay(Color.black.opacity(0.4))
                 } else {
                     theme.background
                 }
@@ -326,12 +348,14 @@ struct ScriptureLiveActivityLockView: View {
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(isPhoto ? .white.opacity(0.85) : theme.accent)
                             .lineLimit(1)
+                            .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
 
                         Text(context.attributes.verseText)
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(isPhoto ? .white : theme.text)
                             .lineLimit(2)
                             .truncationMode(.tail)
+                            .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
