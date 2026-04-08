@@ -245,7 +245,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
         ),
         child: Text(
           l10n.pinThisVerse,
-          style: GoogleFonts.notoSans(
+          style: GoogleFonts.gowunBatang(
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -321,7 +321,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
             children: [
               Text(
                 '${widget.bookName} ${l10n.chapterLabel(widget.chapter)}',
-                style: GoogleFonts.notoSans(
+                style: GoogleFonts.gowunBatang(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: theme.colorScheme.onSurface,
@@ -530,12 +530,12 @@ class _VerseRow extends StatelessWidget {
             width: 1,
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 28,
+              width: 16,
               child: Text(
                 '${verse.verse}',
                 style: TextStyle(
@@ -551,12 +551,12 @@ class _VerseRow extends StatelessWidget {
             Expanded(
               child: Text(
                 verse.text,
-                style: GoogleFonts.notoSerif(
+                style: GoogleFonts.gowunBatang(
                   fontSize: 16,
                   height: 1.9,
                   color: theme.colorScheme.onSurface,
                   fontWeight: isHighlighted
-                      ? FontWeight.w500
+                      ? FontWeight.w700
                       : FontWeight.normal,
                 ),
               ),
@@ -599,7 +599,7 @@ class _BookAccordion extends StatelessWidget {
             Expanded(
               child: Text(
                 bookName,
-                style: GoogleFonts.notoSans(
+                style: GoogleFonts.gowunBatang(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                   color: theme.colorScheme.onSurface,
@@ -649,12 +649,12 @@ class _BookAccordion extends StatelessWidget {
                     child: _HighlightedText(
                       text: v.text,
                       keyword: keyword,
-                      baseStyle: GoogleFonts.notoSerif(
+                      baseStyle: GoogleFonts.gowunBatang(
                         fontSize: 14,
                         height: 1.7,
                         color: theme.colorScheme.onSurface,
                       ),
-                      highlightStyle: GoogleFonts.notoSerif(
+                      highlightStyle: GoogleFonts.gowunBatang(
                         fontSize: 14,
                         height: 1.7,
                         color: color,

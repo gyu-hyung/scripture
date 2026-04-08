@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
-import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 import 'utils/theme.dart';
 
 class ScriptureApp extends StatelessWidget {
@@ -37,7 +37,7 @@ class ScriptureApp extends StatelessWidget {
         // Locale('ru'),
         // Locale('ar'),
       ],
-      home: const HomeScreen(),
+      home: const SplashScreen(),
     );
   }
 }

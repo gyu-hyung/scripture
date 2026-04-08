@@ -68,27 +68,11 @@ struct ThemeColors {
 // MARK: - Custom Photo Helper
 
 func loadCustomPhoto() -> Image? {
-    guard let containerURL = FileManager.default.containerURL(
-        forSecurityApplicationGroupIdentifier: "group.com.scripture.scripture"
-    ) else { return nil }
-    let fileURL = containerURL.appendingPathComponent("widget_custom_bg.jpg")
-    
-    // 안전한 메모리 사용을 위해 썸네일 크기로 다운샘플링하여 불러옵니다.
-    let options: [CFString: Any] = [
-        kCGImageSourceCreateThumbnailFromImageIfAbsent: true,
-        kCGImageSourceCreateThumbnailWithTransform: true,
-        kCGImageSourceShouldCacheImmediately: true,
-        kCGImageSourceThumbnailMaxPixelSize: 800
-    ]
-    
-    // 파일 권한 문제나 캐싱 문제를 피하기 위해 Data로 먼저 읽어들입니다.
-    guard let data = try? Data(contentsOf: fileURL),
-          let source = CGImageSourceCreateWithData(data as CFData, nil),
-          let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+    guard let defaults = UserDefaults(suiteName: "group.com.scripture.scripture"),
+          let data = defaults.data(forKey: "customPhotoData"),
+          let uiImage = UIImage(data: data) else {
         return nil
     }
-    
-    let uiImage = UIImage(cgImage: cgImage)
     return Image(uiImage: uiImage)
 }
 
@@ -367,8 +351,8 @@ struct ScriptureLiveActivityLockView: View {
                     )
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.vertical, 18)
+                .frame(maxWidth: .infinity, minHeight: 88, maxHeight: .infinity)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

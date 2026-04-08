@@ -30,9 +30,9 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(
       source: ImageSource.gallery,
-      maxWidth: 1080,
-      maxHeight: 1080,
-      imageQuality: 85,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 75,
     );
     if (picked == null || !mounted) return;
     setState(() {
@@ -83,9 +83,9 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
             const SizedBox(height: 16),
             Text(
               l10n.softPromptTitle,
-              style: GoogleFonts.notoSans(
+              style: GoogleFonts.gowunBatang(
                 fontSize: 18,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 color: theme.colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
@@ -93,7 +93,7 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
             const SizedBox(height: 12),
             Text(
               l10n.softPromptBody,
-              style: GoogleFonts.notoSans(
+              style: GoogleFonts.gowunBatang(
                 fontSize: 14,
                 height: 1.6,
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
@@ -211,9 +211,9 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
                         const SizedBox(height: 3),
                         Text(
                           widget.verse.text,
-                          style: GoogleFonts.notoSerif(
+                          style: GoogleFonts.gowunBatang(
                             fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                             color: textColor,
                             height: 1.4,
                           ),
@@ -278,13 +278,13 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: isPhoto ? null : wt.background,
+              color: isPhoto ? (_customPhotoFile != null ? null : theme.colorScheme.surfaceContainerHighest) : wt.background,
               shape: BoxShape.circle,
               border: Border.all(
                 color: isSelected
                     ? theme.colorScheme.primary
-                    : Colors.transparent,
-                width: 3,
+                    : theme.colorScheme.onSurface.withValues(alpha: 0.15),
+                width: isSelected ? 3 : 1,
               ),
               boxShadow: [
                 if (isSelected)
@@ -335,13 +335,10 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
       );
     }
     // 아직 사진을 선택하지 않은 상태
-    return Container(
-      color: theme.colorScheme.surfaceContainerHighest,
-      child: Icon(
-        Icons.add_photo_alternate_rounded,
-        color: theme.colorScheme.primary,
-        size: 28,
-      ),
+    return Icon(
+      Icons.add_photo_alternate_rounded,
+      color: theme.colorScheme.primary,
+      size: 28,
     );
   }
 
@@ -355,8 +352,8 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
       appBar: AppBar(
         title: Text(
           l10n.widgetThemeTitle,
-          style: GoogleFonts.notoSans(
-              fontSize: 16, fontWeight: FontWeight.w600),
+          style: GoogleFonts.gowunBatang(
+              fontSize: 16, fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,

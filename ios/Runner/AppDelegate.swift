@@ -81,19 +81,11 @@ import ActivityKit
                 result(FlutterError(code: "INVALID_ARGS", message: "data required", details: nil))
                 return
             }
-            if let containerURL = FileManager.default.containerURL(
-                forSecurityApplicationGroupIdentifier: "group.com.scripture.scripture"
-            ) {
-                let fileURL = containerURL.appendingPathComponent("widget_custom_bg.jpg")
-                do {
-                    // .atomic으로 안전하게 쓰고, 잠금화면에서도 위젯이 읽을 수 있게 .noFileProtection 설정
-                    try data.data.write(to: fileURL, options: [.atomic, .noFileProtection])
-                    result(nil)
-                } catch {
-                    result(FlutterError(code: "WRITE_FAILED", message: error.localizedDescription, details: nil))
-                }
+            if let defaults = UserDefaults(suiteName: "group.com.scripture.scripture") {
+                defaults.set(data.data, forKey: "customPhotoData")
+                result(nil)
             } else {
-                result(FlutterError(code: "NO_APP_GROUP", message: "App Group container not found", details: nil))
+                result(FlutterError(code: "NO_APP_GROUP", message: "App Group defaults not found", details: nil))
             }
 
         case "requestHealthKitPermission":

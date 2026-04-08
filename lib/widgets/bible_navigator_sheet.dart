@@ -238,7 +238,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
               children: [
                 Text(
                   l10n.bibleNavigator,
-                  style: GoogleFonts.notoSans(
+                  style: GoogleFonts.gowunBatang(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: theme.colorScheme.onSurface,
@@ -352,7 +352,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
                 Expanded(
                   child: Text(
                     book.name,
-                    style: GoogleFonts.notoSans(
+                    style: GoogleFonts.gowunBatang(
                       fontSize: 14,
                       fontWeight: isSelected
                           ? FontWeight.w700
@@ -404,7 +404,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
                 : Colors.transparent,
             child: Text(
               l10n.chapterLabel(ch),
-              style: GoogleFonts.notoSans(
+              style: GoogleFonts.gowunBatang(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
                 color: isSelected ? color : theme.colorScheme.onSurface,
@@ -445,7 +445,7 @@ class _BibleNavigatorSheetState extends ConsumerState<BibleNavigatorSheet> {
                 : Colors.transparent,
             child: Text(
               l10n.verseLabel(v),
-              style: GoogleFonts.notoSans(
+              style: GoogleFonts.gowunBatang(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
                 color: isSelected ? color : theme.colorScheme.onSurface,

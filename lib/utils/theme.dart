@@ -18,7 +18,7 @@ class AppTheme {
         onSurface: const Color(0xFF2D2D2D),
       ),
       scaffoldBackgroundColor: _lightBackground,
-      textTheme: GoogleFonts.notoSansTextTheme(
+      textTheme: GoogleFonts.gowunBatangTextTheme(
         ThemeData.light().textTheme,
       ),
       appBarTheme: AppBarTheme(
@@ -26,15 +26,15 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.notoSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
+        titleTextStyle: GoogleFonts.gowunBatang(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
           color: const Color(0xFF2D2D2D),
         ),
       ),
       chipTheme: ChipThemeData(
         selectedColor: _accent.withValues(alpha: 0.15),
-        labelStyle: GoogleFonts.notoSans(fontSize: 13),
+        labelStyle: GoogleFonts.gowunBatang(fontSize: 14, fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -50,7 +50,7 @@ class AppTheme {
         onSurface: const Color(0xFFE8E8E8),
       ),
       scaffoldBackgroundColor: _darkBackground,
-      textTheme: GoogleFonts.notoSansTextTheme(
+      textTheme: GoogleFonts.gowunBatangTextTheme(
         ThemeData.dark().textTheme,
       ),
       appBarTheme: AppBarTheme(
@@ -58,15 +58,15 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.notoSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
+        titleTextStyle: GoogleFonts.gowunBatang(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
           color: const Color(0xFFE8E8E8),
         ),
       ),
       chipTheme: ChipThemeData(
         selectedColor: _accentLight.withValues(alpha: 0.2),
-        labelStyle: GoogleFonts.notoSans(fontSize: 13),
+        labelStyle: GoogleFonts.gowunBatang(fontSize: 14, fontWeight: FontWeight.w500),
       ),
     );
   }

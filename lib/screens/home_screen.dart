@@ -186,7 +186,7 @@ class _PinnedVerseCenter extends StatelessWidget {
               Text(
                 verse.text,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.notoSerif(
+                style: GoogleFonts.gowunBatang(
                   fontSize: 18,
                   height: 1.9,
                   color: theme.colorScheme.onSurface,
@@ -202,7 +202,7 @@ class _PinnedVerseCenter extends StatelessWidget {
                 ),
                 child: Text(
                   verse.reference,
-                  style: GoogleFonts.notoSans(
+                  style: GoogleFonts.gowunBatang(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: color,
