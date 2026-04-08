@@ -8,6 +8,7 @@ struct ScriptureActivityAttributes: ActivityAttributes {
         /// true이면 걸음 수 대신 세션 시작 시각 기준 타이머를 표시
         var useTimer: Bool
         var sessionStartDate: Date
+        var customPhotoFilename: String?
     }
 
     var verseText: String

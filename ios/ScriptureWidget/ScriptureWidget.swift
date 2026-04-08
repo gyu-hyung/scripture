@@ -67,13 +67,45 @@ struct ThemeColors {
 
 // MARK: - Custom Photo Helper
 
-func loadCustomPhoto() -> Image? {
-    guard let defaults = UserDefaults(suiteName: "group.com.scripture.scripture"),
-          let data = defaults.data(forKey: "customPhotoData"),
-          let uiImage = UIImage(data: data) else {
+func loadCustomPhoto(filename: String? = nil) -> Image? {
+    let appGroupId = "group.com.scripture.scripture"
+    guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) else {
         return nil
     }
-    return Image(uiImage: uiImage)
+    
+    // 1. 가장 권장되는 방식: 인자로 전달받은 고유 파일명 로드 (캐시 문제 없음)
+    if let filename = filename {
+        let fileURL = containerURL.appendingPathComponent(filename)
+        if let data = try? Data(contentsOf: fileURL),
+           let uiImage = UIImage(data: data) {
+            return Image(uiImage: uiImage)
+        }
+    }
+    
+    // 2. 차선책: 고정된 위치의 파일 직접 로드
+    let fixedFileURL = containerURL.appendingPathComponent("widget_custom_bg.jpg")
+    if let data = try? Data(contentsOf: fixedFileURL),
+       let uiImage = UIImage(data: data) {
+        return Image(uiImage: uiImage)
+    }
+    
+    // 3. 하위 호환성: UserDefaults에 저장된 파일명이 있을 경우 시도
+    if let defaults = UserDefaults(suiteName: appGroupId),
+       let defaultsFilename = defaults.string(forKey: "customPhotoFilename") {
+        let legacyFileURL = containerURL.appendingPathComponent(defaultsFilename)
+        if let data = try? Data(contentsOf: legacyFileURL),
+           let uiImage = UIImage(data: data) {
+            return Image(uiImage: uiImage)
+        }
+    }
+    
+    // 4. 최후의 보루: 구형 방식(UserDefaults 직접 저장) 체크
+    if let data = UserDefaults(suiteName: appGroupId)?.data(forKey: "customPhotoData"),
+       let uiImage = UIImage(data: data) {
+        return Image(uiImage: uiImage)
+    }
+    
+    return nil
 }
 
 func getThemeColors(for themeId: String) -> ThemeColors {
@@ -309,7 +341,7 @@ struct ScriptureLiveActivityLockView: View {
         ZStack {
             // 배경 레이어
             if isPhoto {
-                if let photo = loadCustomPhoto() {
+                if let photo = loadCustomPhoto(filename: context.state.customPhotoFilename) {
                     photo
                         .resizable()
                         .aspectRatio(contentMode: .fill)

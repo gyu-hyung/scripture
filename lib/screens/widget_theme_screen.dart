@@ -30,9 +30,9 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(
       source: ImageSource.gallery,
-      maxWidth: 800,
-      maxHeight: 800,
-      imageQuality: 75,
+      maxWidth: 600,  // 라이브 액티비티 메모리 제한을 위해 더 축소
+      maxHeight: 600,
+      imageQuality: 60, // 압축률 강화
     );
     if (picked == null || !mounted) return;
     setState(() {

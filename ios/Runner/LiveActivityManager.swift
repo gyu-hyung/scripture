@@ -8,7 +8,7 @@ class LiveActivityManager {
 
     private var currentActivity: Activity<ScriptureActivityAttributes>?
 
-    func startActivity(verseText: String, verseRef: String, themeId: String, healthKitAuthorized: Bool) {
+    func startActivity(verseText: String, verseRef: String, themeId: String, customPhotoFilename: String?, healthKitAuthorized: Bool) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
 
         let attributes = ScriptureActivityAttributes(
@@ -19,7 +19,8 @@ class LiveActivityManager {
         let contentState = ScriptureActivityAttributes.ContentState(
             stepCount: 0,
             useTimer: !healthKitAuthorized,
-            sessionStartDate: Date()
+            sessionStartDate: Date(),
+            customPhotoFilename: customPhotoFilename
         )
 
         // 앱 재시작 등으로 currentActivity가 nil이더라도
@@ -53,7 +54,8 @@ class LiveActivityManager {
             let updatedState = ScriptureActivityAttributes.ContentState(
                 stepCount: steps,
                 useTimer: false,
-                sessionStartDate: activity.contentState.sessionStartDate
+                sessionStartDate: activity.contentState.sessionStartDate,
+                customPhotoFilename: activity.contentState.customPhotoFilename
             )
             await activity.update(using: updatedState)
         }
