@@ -22,24 +22,6 @@ class WidgetThemeScreen extends ConsumerStatefulWidget {
 
 class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
   WidgetTheme _selectedTheme = WidgetTheme.modernDark;
-  // 사용자가 선택한 사진 (custom_photo 테마 선택 시에만 non-null)
-  File? _customPhotoFile;
-
-  // ── 사진 선택 ──────────────────────────────────────────────────────
-  Future<void> _pickPhoto() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 600,  // 라이브 액티비티 메모리 제한을 위해 더 축소
-      maxHeight: 600,
-      imageQuality: 60, // 압축률 강화
-    );
-    if (picked == null || !mounted) return;
-    setState(() {
-      _customPhotoFile = File(picked.path);
-      _selectedTheme = WidgetTheme.customPhoto;
-    });
-  }
 
   // ── 소프트 프롬프트 → 세션 시작 ────────────────────────────────────
   Future<void> _showSoftPrompt(
@@ -47,13 +29,6 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
     ThemeData theme,
     AppLocalizations l10n,
   ) async {
-    // 사진 테마를 선택했지만 아직 사진을 고르지 않은 경우 사진 먼저 선택
-    if (_selectedTheme.id == AppConstants.themeCustomPhoto &&
-        _customPhotoFile == null) {
-      await _pickPhoto();
-      if (_customPhotoFile == null || !mounted) return;
-    }
-
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -139,13 +114,6 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
 
     if (confirmed != true || !mounted) return;
 
-    // 사진 테마인 경우 App Group 컨테이너에 먼저 저장
-    if (_selectedTheme.id == AppConstants.themeCustomPhoto &&
-        _customPhotoFile != null) {
-      final Uint8List bytes = await _customPhotoFile!.readAsBytes();
-      await ref.read(widgetServiceProvider).saveCustomPhoto(bytes);
-    }
-
     await ref.read(pinnedVerseProvider.notifier).pinVerse(
           widget.verse,
           themeId: _selectedTheme.id,
@@ -156,99 +124,90 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
 
   // ── 프리뷰 위젯 (실제 Live Activity 잠금화면 바 레이아웃과 동일) ────
   Widget _buildPreview(ThemeData _) {
-    final isPhoto = _selectedTheme.id == AppConstants.themeCustomPhoto;
-    final hasPhoto = _customPhotoFile != null;
     final bgColor = _selectedTheme.background;
-    final textColor = (isPhoto && hasPhoto) ? Colors.white : _selectedTheme.textColor;
-    final accentColor = (isPhoto && hasPhoto) ? Colors.white.withValues(alpha: 0.85) : _selectedTheme.accentColor;
+    final textColor = _selectedTheme.textColor;
+    final accentColor = _selectedTheme.accentColor;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: SizedBox(
-        height: 88,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        height: 120,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: bgColor,
+        ),
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // ── 배경 ──────────────────────────────────────────────────
-            if (isPhoto && hasPhoto)
-              Positioned.fill(
-                child: Image.file(
-                  _customPhotoFile!,
-                  fit: BoxFit.cover,
-                ),
-              )
-            else
-              Positioned.fill(child: ColoredBox(color: bgColor)),
-
-            // 사진 위 어두운 오버레이 (텍스트 가독성)
-            if (isPhoto && hasPhoto)
-              Positioned.fill(
-                child: ColoredBox(color: Colors.black.withValues(alpha: 0.35)),
-              ),
-
-            // ── 콘텐츠 (ScriptureLiveActivityLockView와 동일 구조) ────
+            // 실제 콘텐츠
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // 좌측: 참조 + 본문
+                  // 상단: 참조 + 본문 (내용이 길면 얘만 축소됨)
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          widget.verse.reference,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: accentColor,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.topLeft,
+                      child: SizedBox(
+                        // FittedBox 안에서도 텍스트가 가로를 꽉 채우도록 가상 너비 설정
+                        width: MediaQuery.of(context).size.width - 48 - 32,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.verse.reference,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: accentColor,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.verse.text,
+                              style: GoogleFonts.gowunBatang(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 3),
-                        Text(
-                          widget.verse.text,
-                          style: GoogleFonts.gowunBatang(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: textColor,
-                            height: 1.4,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  // 우측: 걸음 수 플레이스홀더
-                  SizedBox(
-                    width: 52,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('👣', style: TextStyle(fontSize: 16)),
-                        const SizedBox(height: 2),
-                        Text(
-                          '0',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: accentColor,
+                  const SizedBox(height: 8),
+                  // 하단 바: 얘는 축소되지 않고 무조건 우측 끝에 붙음
+                  Row(
+                    children: [
+                      const Spacer(),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('👣', style: TextStyle(fontSize: 12)),
+                          const SizedBox(width: 4),
+                          Text(
+                            '0',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: accentColor,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '걸음',
-                          style: TextStyle(
-                            fontSize: 9,
-                            color: textColor.withValues(alpha: 0.6),
+                          const SizedBox(width: 4),
+                          Text(
+                            '걸음',
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: textColor.withValues(alpha: 0.6),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -262,83 +221,36 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
   // ── 테마 선택 리스트 아이템 ─────────────────────────────────────────
   Widget _buildThemeItem(
       WidgetTheme wt, bool isSelected, ThemeData theme, AppLocalizations l10n) {
-    final isPhoto = wt.id == AppConstants.themeCustomPhoto;
-
     return GestureDetector(
-      onTap: () async {
-        if (isPhoto) {
-          await _pickPhoto();
-        } else {
-          setState(() => _selectedTheme = wt);
-        }
+      onTap: () {
+        setState(() => _selectedTheme = wt);
       },
-      child: Column(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: isPhoto ? (_customPhotoFile != null ? null : theme.colorScheme.surfaceContainerHighest) : wt.background,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurface.withValues(alpha: 0.15),
-                width: isSelected ? 3 : 1,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: wt.background,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isSelected
+                ? theme.colorScheme.primary
+                : theme.colorScheme.onSurface.withValues(alpha: 0.1),
+            width: isSelected ? 3 : 1,
+          ),
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                blurRadius: 8,
+                spreadRadius: 2,
               ),
-              boxShadow: [
-                if (isSelected)
-                  BoxShadow(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    spreadRadius: 2,
-                  ),
-              ],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: isPhoto
-                ? _buildPhotoCircle(isSelected, wt, theme)
-                : isSelected
-                    ? Icon(Icons.check, color: wt.textColor, size: 24)
-                    : null,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            wt.localizedName(l10n),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight:
-                  isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface,
-            ),
-          ),
-        ],
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: isSelected
+            ? Icon(Icons.check, color: wt.textColor, size: 24)
+            : null,
       ),
-    );
-  }
-
-  Widget _buildPhotoCircle(
-      bool isSelected, WidgetTheme wt, ThemeData theme) {
-    if (_customPhotoFile != null) {
-      return Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.file(_customPhotoFile!, fit: BoxFit.cover),
-          if (isSelected)
-            ColoredBox(
-              color: Colors.black.withValues(alpha: 0.3),
-              child: const Icon(Icons.check, color: Colors.white, size: 24),
-            ),
-        ],
-      );
-    }
-    // 아직 사진을 선택하지 않은 상태
-    return Icon(
-      Icons.add_photo_alternate_rounded,
-      color: theme.colorScheme.primary,
-      size: 28,
     );
   }
 
@@ -360,30 +272,31 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
         elevation: 0,
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 40),
-          // 프리뷰
+          // 프리뷰 위치를 화면 상단 60~70% 구역(중하단 쪽)으로 조정
+          const Spacer(flex: 4),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: _buildPreview(theme),
           ),
-          const Spacer(),
-          // 테마 선택 리스트
+          const Spacer(flex: 3),
+          // 테마 선택 리스트 (색상 팔레트)
           SizedBox(
-            height: 120,
+            height: 72,
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               scrollDirection: Axis.horizontal,
               itemCount: WidgetTheme.all.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 16),
+              separatorBuilder: (_, _) => const SizedBox(width: 14),
               itemBuilder: (context, index) {
                 final wt = WidgetTheme.all[index];
                 final isSelected = wt.id == _selectedTheme.id;
-                return _buildThemeItem(wt, isSelected, theme, l10n);
+                return Center(child: _buildThemeItem(wt, isSelected, theme, l10n));
               },
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           // 세션 시작 버튼
           Padding(
             padding: const EdgeInsets.all(24),

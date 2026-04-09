@@ -9,7 +9,7 @@ import 'services/bible_service.dart';
 import 'services/widget_service.dart';
 import 'utils/constants.dart';
 
-const _dailyVerseTask = 'com.scripture.dailyVerse';
+const _dailyVerseTask = 'com.jgh.scripture.dailyVerse';
 
 // Android 전용 백그라운드 작업 디스패처
 @pragma('vm:entry-point')

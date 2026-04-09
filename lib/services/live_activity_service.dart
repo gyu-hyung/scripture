@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import '../models/verse.dart';
 
 class LiveActivityService {
-  static const _channel = MethodChannel('com.scripture.liveActivity');
+  static const _channel = MethodChannel('com.jgh.scripture.liveActivity');
 
   /// 말씀 고정과 동시에 Live Activity 세션을 시작합니다.
   /// iOS 16.2 미만 기기에서는 아무 동작도 하지 않습니다.

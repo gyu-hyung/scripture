@@ -145,7 +145,7 @@ class WidgetService {
 
   /// 선택한 사진을 App Group 공유 컨테이너에 저장하고 위젯을 갱신합니다.
   Future<void> saveCustomPhoto(Uint8List jpegBytes) async {
-    const channel = MethodChannel('com.scripture.liveActivity');
+    const channel = MethodChannel('com.jgh.scripture.liveActivity');
     try {
       await channel.invokeMethod<void>('saveCustomPhoto', {
         'data': jpegBytes,

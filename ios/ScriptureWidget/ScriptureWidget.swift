@@ -15,7 +15,7 @@ struct VerseEntry: TimelineEntry {
 }
 
 // MARK: - UserDefaults App Group
-private let appGroupId = "group.com.scripture.scripture"
+private let appGroupId = "group.com.jgh.scripture"
 private let keyVerseText = "verse_text"
 private let keyVerseReference = "verse_ref"
 private let keyIsPinned = "is_pinned"
@@ -68,7 +68,7 @@ struct ThemeColors {
 // MARK: - Custom Photo Helper
 
 func loadCustomPhoto(filename: String? = nil) -> Image? {
-    let appGroupId = "group.com.scripture.scripture"
+    let appGroupId = "group.com.jgh.scripture"
     guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) else {
         return nil
     }
@@ -76,7 +76,7 @@ func loadCustomPhoto(filename: String? = nil) -> Image? {
     // 1. 가장 권장되는 방식: 인자로 전달받은 고유 파일명 로드 (캐시 문제 없음)
     if let filename = filename {
         let fileURL = containerURL.appendingPathComponent(filename)
-        if let data = try? Data(contentsOf: fileURL),
+        if let data = try? Data(contentsOf: fileURL, options: .alwaysMapped),
            let uiImage = UIImage(data: data) {
             return Image(uiImage: uiImage)
         }
@@ -84,7 +84,7 @@ func loadCustomPhoto(filename: String? = nil) -> Image? {
     
     // 2. 차선책: 고정된 위치의 파일 직접 로드
     let fixedFileURL = containerURL.appendingPathComponent("widget_custom_bg.jpg")
-    if let data = try? Data(contentsOf: fixedFileURL),
+    if let data = try? Data(contentsOf: fixedFileURL, options: .alwaysMapped),
        let uiImage = UIImage(data: data) {
         return Image(uiImage: uiImage)
     }
@@ -93,7 +93,7 @@ func loadCustomPhoto(filename: String? = nil) -> Image? {
     if let defaults = UserDefaults(suiteName: appGroupId),
        let defaultsFilename = defaults.string(forKey: "customPhotoFilename") {
         let legacyFileURL = containerURL.appendingPathComponent(defaultsFilename)
-        if let data = try? Data(contentsOf: legacyFileURL),
+        if let data = try? Data(contentsOf: legacyFileURL, options: .alwaysMapped),
            let uiImage = UIImage(data: data) {
             return Image(uiImage: uiImage)
         }
@@ -110,30 +110,59 @@ func loadCustomPhoto(filename: String? = nil) -> Image? {
 
 func getThemeColors(for themeId: String) -> ThemeColors {
     switch themeId {
-    case "minimalist_light":
+    case "pure_white":
         return ThemeColors(
-            background: Color(red: 0.97, green: 0.98, blue: 0.98),
+            background: .white,
             text: Color(red: 0.18, green: 0.18, blue: 0.18),
             accent: Color(red: 0.05, green: 0.28, blue: 0.63)
         )
-    case "serene_blue":
+    case "pastel_red":
         return ThemeColors(
-            background: Color(red: 0.05, green: 0.28, blue: 0.63),
-            text: .white,
-            accent: Color(red: 0.73, green: 0.87, blue: 0.98)
+            background: Color(red: 0.99, green: 0.89, blue: 0.93),
+            text: Color(red: 0.53, green: 0.05, blue: 0.31),
+            accent: Color(red: 0.94, green: 0.38, blue: 0.57)
         )
-    case "nature_green":
+    case "pastel_orange":
         return ThemeColors(
-            background: Color(red: 0.18, green: 0.49, blue: 0.20),
-            text: .white,
-            accent: Color(red: 0.78, green: 0.90, blue: 0.79)
+            background: Color(red: 1.0, green: 0.95, blue: 0.88),
+            text: Color(red: 0.90, green: 0.32, blue: 0.0),
+            accent: Color(red: 1.0, green: 0.72, blue: 0.30)
         )
-    case "custom_photo":
-        // 사진 위에 흰색 텍스트 사용 (배경은 ZStack에서 별도 처리)
+    case "pastel_yellow":
         return ThemeColors(
-            background: Color(red: 0.08, green: 0.08, blue: 0.12),
-            text: .white,
-            accent: Color(white: 0.92)
+            background: Color(red: 1.0, green: 0.99, blue: 0.91),
+            text: Color(red: 0.96, green: 0.50, blue: 0.09),
+            accent: Color(red: 1.0, green: 0.95, blue: 0.46)
+        )
+    case "pastel_green":
+        return ThemeColors(
+            background: Color(red: 0.91, green: 0.96, blue: 0.91),
+            text: Color(red: 0.11, green: 0.37, blue: 0.13),
+            accent: Color(red: 0.51, green: 0.78, blue: 0.52)
+        )
+    case "pastel_teal":
+        return ThemeColors(
+            background: Color(red: 0.88, green: 0.95, blue: 0.95),
+            text: Color(red: 0.0, green: 0.30, blue: 0.25),
+            accent: Color(red: 0.30, green: 0.71, blue: 0.67)
+        )
+    case "pastel_blue":
+        return ThemeColors(
+            background: Color(red: 0.89, green: 0.95, blue: 0.99),
+            text: Color(red: 0.05, green: 0.28, blue: 0.63),
+            accent: Color(red: 0.39, green: 0.71, blue: 0.96)
+        )
+    case "pastel_indigo":
+        return ThemeColors(
+            background: Color(red: 0.91, green: 0.92, blue: 0.96),
+            text: Color(red: 0.10, green: 0.14, blue: 0.49),
+            accent: Color(red: 0.47, green: 0.53, blue: 0.80)
+        )
+    case "pastel_purple":
+        return ThemeColors(
+            background: Color(red: 0.95, green: 0.90, blue: 0.96),
+            text: Color(red: 0.29, green: 0.08, blue: 0.55),
+            accent: Color(red: 0.73, green: 0.41, blue: 0.78)
         )
     default: // modern_dark
         return ThemeColors(
@@ -287,45 +316,57 @@ struct ScriptureDynamicDataView: View {
     let state: ScriptureActivityAttributes.ContentState
     let accentColor: Color
     let textColor: Color
+    var isHorizontal: Bool = false
 
     var body: some View {
         if state.useTimer {
-            // 권한 거절 시: 세션 경과 타이머
-            VStack(alignment: .center, spacing: 2) {
-                Text("⏳")
-                    .font(.system(size: 14))
-                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
-                Text(timerInterval: state.sessionStartDate...state.sessionStartDate.addingTimeInterval(8 * 3600),
-                     countsDown: false)
-                    .font(.system(size: 11, weight: .bold))
+            // 타이머 표시 (HealthKit 미허용 시)
+            HStack(alignment: .center, spacing: 4) {
+                Text("⏱️")
+                    .font(.system(size: isHorizontal ? 12 : 14))
+                Text(state.sessionStartDate, style: .timer)
+                    .font(.system(size: isHorizontal ? 11 : 11, weight: .bold))
                     .foregroundColor(accentColor)
                     .monospacedDigit()
                     .multilineTextAlignment(.center)
-                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
-                Text("동행 중")
-                    .font(.system(size: 9))
-                    .foregroundColor(textColor.opacity(0.6))
-                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
             }
-            .frame(width: 60)
+            .frame(width: isHorizontal ? nil : 60)
         } else {
             // 권한 허용 시: 걸음 수
-            VStack(alignment: .center, spacing: 2) {
-                Text("👣")
-                    .font(.system(size: 16))
-                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
-                Text(state.stepCount >= 1000
-                     ? String(format: "%.1fk", Double(state.stepCount) / 1000.0)
-                     : "\(state.stepCount)")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(accentColor)
-                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
-                Text("걸음")
-                    .font(.system(size: 9))
-                    .foregroundColor(textColor.opacity(0.6))
-                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+            if isHorizontal {
+                HStack(alignment: .center, spacing: 4) {
+                    Text("👣")
+                        .font(.system(size: 12))
+                        .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+                    Text(state.stepCount >= 1000
+                         ? String(format: "%.1fk", Double(state.stepCount) / 1000.0)
+                         : "\(state.stepCount)")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(accentColor)
+                        .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+                    Text("걸음")
+                        .font(.system(size: 9))
+                        .foregroundColor(textColor.opacity(0.6))
+                        .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+                }
+            } else {
+                VStack(alignment: .center, spacing: 2) {
+                    Text("👣")
+                        .font(.system(size: 16))
+                        .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+                    Text(state.stepCount >= 1000
+                         ? String(format: "%.1fk", Double(state.stepCount) / 1000.0)
+                         : "\(state.stepCount)")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(accentColor)
+                        .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+                    Text("걸음")
+                        .font(.system(size: 9))
+                        .foregroundColor(textColor.opacity(0.6))
+                        .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+                }
+                .frame(width: 52)
             }
-            .frame(width: 52)
         }
     }
 }
@@ -349,16 +390,28 @@ struct ScriptureLiveActivityLockView: View {
                         .clipped()
                         .overlay(Color.black.opacity(0.4))
                 } else {
+                    // 진단용 아이콘: 사진 테마인데 로딩 실패 시 표시
                     theme.background
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Text("⚠️")
+                                .font(.system(size: 10))
+                                .opacity(0.3)
+                                .padding(8)
+                        }
+                    }
                 }
             } else {
                 theme.background
             }
 
             // 메인 컨텐츠 레이어
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .center, spacing: 12) {
-                    // 좌측: 말씀 (참조 + 본문)
+            HStack(alignment: .bottom, spacing: 8) {
+                // 좌측: 말씀 세로 중앙 정렬
+                VStack(alignment: .leading) {
+                    Spacer()
                     VStack(alignment: .leading, spacing: 3) {
                         Text(context.attributes.verseRef)
                             .font(.system(size: 11, weight: .bold))
@@ -369,23 +422,26 @@ struct ScriptureLiveActivityLockView: View {
                         Text(context.attributes.verseText)
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(isPhoto ? .white : theme.text)
-                            .lineLimit(2)
+                            .lineLimit(nil)
+                            .minimumScaleFactor(0.6)
                             .truncationMode(.tail)
                             .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                    // 우측: 걸음 수 또는 타이머
-                    ScriptureDynamicDataView(
-                        state: context.state,
-                        accentColor: isPhoto ? .white.opacity(0.85) : theme.accent,
-                        textColor: isPhoto ? .white : theme.text
-                    )
+                    Spacer()
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 18)
-                .frame(maxWidth: .infinity, minHeight: 88, maxHeight: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                // 우측 하단 고정: 걸음 수 / 타이머
+                ScriptureDynamicDataView(
+                    state: context.state,
+                    accentColor: isPhoto ? .white.opacity(0.85) : theme.accent,
+                    textColor: isPhoto ? .white : theme.text,
+                    isHorizontal: true
+                )
             }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
@@ -403,32 +459,36 @@ struct ScriptureActivityConfiguration: Widget {
 
             return DynamicIsland {
                 // Expanded (길게 터치 시)
+                // 다이나믹 아일랜드 배경은 항상 검정이므로 흰색 계열 고정 사용
                 DynamicIslandExpandedRegion(.center) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(context.attributes.verseRef)
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .foregroundColor(theme.accent)
+                    HStack(alignment: .bottom, spacing: 8) {
+                        // 좌측: 말씀
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(context.attributes.verseRef)
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white.opacity(0.7))
+                                .lineLimit(1)
 
-                        Text(context.attributes.verseText)
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(theme.text)
-                            .lineLimit(3)
-                            .truncationMode(.tail)
-                            .fixedSize(horizontal: false, vertical: true)
+                            Text(context.attributes.verseText)
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.white)
+                                .lineLimit(6)
+                                .truncationMode(.tail)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                        // 우측: 걸음 수 / 타이머 (가로)
+                        ScriptureDynamicDataView(
+                            state: context.state,
+                            accentColor: .white.opacity(0.85),
+                            textColor: .white,
+                            isHorizontal: true
+                        )
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 4)
-                }
-
-                DynamicIslandExpandedRegion(.trailing) {
-                    ScriptureDynamicDataView(
-                        state: context.state,
-                        accentColor: theme.accent,
-                        textColor: theme.text
-                    )
-                    .padding(.trailing, 4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 8)
                 }
             } compactLeading: {
                 // Compact 좌측: 책 아이콘

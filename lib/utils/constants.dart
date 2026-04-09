@@ -3,7 +3,7 @@ class AppConstants {
   static const String dbName = 'bible.db';
   static const String widgetAndroidName = 'ScriptureWidgetProvider';
   static const String widgetIosName = 'ScriptureWidgetV2';
-  static const String appGroupId = 'group.com.scripture.scripture';
+  static const String appGroupId = 'group.com.jgh.scripture';
 
   // SharedPreferences keys
   static const String keyCurrentVerseId = 'current_verse_id';
@@ -26,10 +26,15 @@ class AppConstants {
 
   // Theme IDs
   static const String themeModernDark = 'modern_dark';
-  static const String themeMinimalistLight = 'minimalist_light';
-  static const String themeSereneBlue = 'serene_blue';
-  static const String themeNatureGreen = 'nature_green';
-  static const String themeCustomPhoto = 'custom_photo';
+  static const String themePureWhite = 'pure_white';
+  static const String themePastelRed = 'pastel_red';
+  static const String themePastelOrange = 'pastel_orange';
+  static const String themePastelYellow = 'pastel_yellow';
+  static const String themePastelGreen = 'pastel_green';
+  static const String themePastelTeal = 'pastel_teal';
+  static const String themePastelBlue = 'pastel_blue';
+  static const String themePastelIndigo = 'pastel_indigo';
+  static const String themePastelPurple = 'pastel_purple';
 
   // Custom photo storage key (App Group shared)
   static const String customPhotoBgFilename = 'widget_custom_bg.jpg';

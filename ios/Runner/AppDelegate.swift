@@ -19,7 +19,7 @@ import ActivityKit
         guard let controller = window?.rootViewController as? FlutterViewController else { return }
 
         let channel = FlutterMethodChannel(
-            name: "com.scripture.liveActivity",
+            name: "com.jgh.scripture.liveActivity",
             binaryMessenger: controller.binaryMessenger
         )
 
@@ -47,9 +47,12 @@ import ActivityKit
 
             HealthKitService.shared.requestAuthorization { authorized in
                 NSLog("[LiveActivityDebug] HealthKit auth result: \(authorized)")
-                DispatchQueue.main.async {
-                    let defaults = UserDefaults(suiteName: "group.com.scripture.scripture")
-                    let photoFilename = defaults?.string(forKey: "customPhotoFilename")
+                
+                // 파일 시스템 플러시 대기 (CPU가 파일을 완전히 기록할 시간을 줌)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    let defaults = UserDefaults(suiteName: "group.com.jgh.scripture")
+                    // 메모리 우선, 없으면 UserDefaults 시도
+                    let photoFilename = LiveActivityManager.shared.lastSavedPhotoFilename ?? defaults?.string(forKey: "customPhotoFilename")
                     
                     LiveActivityManager.shared.startActivity(
                         verseText: verseText,
@@ -86,7 +89,7 @@ import ActivityKit
                 return
             }
             
-            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.scripture.scripture") {
+            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.jgh.scripture") {
                 // 고유한 파일명 생성을 통해 캐시 문제 완전 해결
                 let timestamp = Int(Date().timeIntervalSince1970)
                 let filename = "bg_\(timestamp).jpg"
@@ -94,7 +97,7 @@ import ActivityKit
                 
                 // 메모리 보호를 위해 이미지 리사이징 및 압축 후 저장
                 if saveAndCompressImage(data: data.data, to: fileURL) {
-                    let defaults = UserDefaults(suiteName: "group.com.scripture.scripture")
+                    let defaults = UserDefaults(suiteName: "group.com.jgh.scripture")
                     
                     // 기존에 저장된 다른 배경 파일들 삭제 (용량 관리)
                     if let oldFilename = defaults?.string(forKey: "customPhotoFilename") {
@@ -105,6 +108,10 @@ import ActivityKit
                     defaults?.set(filename, forKey: "customPhotoFilename")
                     defaults?.removeObject(forKey: "customPhotoData")
                     defaults?.synchronize()
+                    
+                    // 메모리 추적 업데이트
+                    LiveActivityManager.shared.lastSavedPhotoFilename = filename
+                    
                     result(nil)
                 } else {
                     result(FlutterError(code: "SAVE_FAILED", message: "Failed to process and save image", details: nil))
@@ -138,17 +145,24 @@ import ActivityKit
     private func saveAndCompressImage(data: Data, to url: URL) -> Bool {
         guard let image = UIImage(data: data) else { return false }
         
-        let maxDimension: CGFloat = 600
+        // 메모리 제한에 절대적으로 안전하도록 360px로 극한의 리사이징
+        let maxDimension: CGFloat = 360
         let size = image.size
         let ratio = min(maxDimension / size.width, maxDimension / size.height, 1.0)
         let newSize = CGSize(width: size.width * ratio, height: size.height * ratio)
         
-        let renderer = UIGraphicsImageRenderer(size: newSize)
+        // 초경량 렌더링 포맷 설정
+        let format = UIGraphicsImageRendererFormat.default()
+        format.opaque = true
+        format.scale = 1.0
+        
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
         let resizedImage = renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: newSize))
         }
         
-        guard let finalData = resizedImage.jpegData(compressionQuality: 0.6) else { return false }
+        // 압축률을 0.5로 높여 파일 크기 최소화
+        guard let finalData = resizedImage.jpegData(compressionQuality: 0.5) else { return false }
         
         do {
             try finalData.write(to: url)
