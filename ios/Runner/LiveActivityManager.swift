@@ -10,8 +10,11 @@ class LiveActivityManager {
     /// 최근 저장된 사진 파일명 (UserDefaults 동기화 지연 방지용)
     public var lastSavedPhotoFilename: String?
 
-    func startActivity(verseText: String, verseRef: String, themeId: String, customPhotoFilename: String?, healthKitAuthorized: Bool) {
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+    func startActivity(verseText: String, verseRef: String, themeId: String, customPhotoFilename: String?, healthKitAuthorized: Bool, completion: (() -> Void)? = nil) {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            completion?()
+            return
+        }
 
         let attributes = ScriptureActivityAttributes(
             verseText: verseText,
@@ -45,6 +48,8 @@ class LiveActivityManager {
                 NSLog("[LiveActivityDebug] Failed to start: \(error.localizedDescription)")
                 print("[LiveActivity] Failed to start: \(error.localizedDescription)")
             }
+
+            await MainActor.run { completion?() }
         }
     }
 

@@ -7,7 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../models/verse.dart';
 import '../providers/providers.dart';
 
-import '../widgets/bible_navigator_sheet.dart';
+
 import 'chapter_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -45,39 +45,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// 말씀이 없을 때 자동으로 네비게이터 시트를 열고,
-  /// 선택된 절을 홈 화면에 고정한다.
-  Future<void> _openNavigatorAndPin() async {
+  /// 말씀이 없을 때 요한복음 1:1을 자동 고정
+  Future<void> _pinDefaultVerse() async {
     if (_navigatorShown) return;
     _navigatorShown = true;
 
-    await Future.delayed(Duration.zero); // 프레임 안전
-    if (!mounted) return;
-
-    final result = await showModalBottomSheet<BibleNavResult>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      isDismissible: false, // 강제 선택
-      builder: (_) => const BibleNavigatorSheet(
-        initialBookId: 58, // 히브리서 (Hebrews)
-        initialChapter: 4,
-        initialVerse: 12,
-      ),
-    );
-
-    if (!mounted) return;
-    _navigatorShown = false;
-
-    if (result == null) return;
-
-    // 선택된 절을 BibleService로 fetch해서 pin
     final svc = ref.read(bibleServiceProvider);
-    final verse = await svc.getVerse(result.book.id, result.chapter, result.verse);
+    final verse = await svc.getVerse(43, 1, 1); // 요한복음 1:1
     if (verse == null || !mounted) return;
 
     await ref.read(pinnedVerseProvider.notifier).pinVerse(verse);
+    _navigatorShown = false;
   }
 
   @override
@@ -130,7 +108,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             if (verse == null) {
               // 말씀이 없으면 다음 프레임에서 자동으로 네비게이터 오픈
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                _openNavigatorAndPin();
+                _pinDefaultVerse();
               });
               return Center(
                 child: CircularProgressIndicator(color: color, strokeWidth: 2),

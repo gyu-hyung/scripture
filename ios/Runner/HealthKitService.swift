@@ -26,9 +26,26 @@ class HealthKitService {
         }
     }
 
-    /// 현재 걸음 수 읽기 권한 상태를 반환합니다.
-    /// HealthKit은 privacy 정책상 denied와 authorized를 구분해 외부에 노출하지 않으므로
-    /// notDetermined / determined 두 가지로만 분류합니다.
+    /// 현재 걸음 수 읽기 권한 상태를 확인합니다.
+    /// iOS 13+에서는 getRequestStatusForAuthorization를 사용할 수 있습니다.
+    func checkAuthorizationStatus(completion: @escaping (Bool) -> Void) {
+        guard isAvailable,
+              let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
+            completion(false)
+            return
+        }
+        
+        if #available(iOS 13.0, *) {
+            healthStore.getRequestStatusForAuthorization(toShare: [], read: [stepType]) { status, error in
+                // .shouldRequest 면 아직 미결정 상태인 것임
+                completion(status != .shouldRequest)
+            }
+        } else {
+            // 구버전은 기존 방식 유지
+            completion(healthStore.authorizationStatus(for: stepType) != .notDetermined)
+        }
+    }
+
     var isAuthorizationDetermined: Bool {
         guard isAvailable,
               let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
@@ -46,20 +63,37 @@ class HealthKitService {
 
         let now = Date()
         let startOfDay = Calendar.current.startOfDay(for: now)
-        let predicate = HKQuery.predicateForSamples(
-            withStart: startOfDay,
-            end: now,
-            options: .strictStartDate
-        )
-
-        let query = HKStatisticsQuery(
+        
+        let interval = NSDateComponents()
+        interval.day = 1
+        
+        // 하루를 통째로 집계하는 컬렉션 쿼리 생성
+        let query = HKStatisticsCollectionQuery(
             quantityType: stepType,
-            quantitySamplePredicate: predicate,
-            options: .cumulativeSum
-        ) { _, result, _ in
-            let steps = Int(result?.sumQuantity()?.doubleValue(for: .count()) ?? 0)
-            completion(steps)
+            quantitySamplePredicate: nil,
+            options: .cumulativeSum,
+            anchorDate: startOfDay,
+            intervalComponents: interval as DateComponents
+        )
+        
+        query.initialResultsHandler = { _, results, error in
+            if let error = error {
+                NSLog("[HealthKitDebug] fetchTodaySteps error: \(error.localizedDescription)")
+                completion(0)
+                return
+            }
+            
+            var totalSteps = 0
+            results?.enumerateStatistics(from: startOfDay, to: now) { statistics, _ in
+                if let sum = statistics.sumQuantity() {
+                    totalSteps += Int(sum.doubleValue(for: HKUnit.count()))
+                }
+            }
+            
+            NSLog("[HealthKitDebug] fetchTodaySteps success: \(totalSteps)")
+            completion(totalSteps)
         }
+        
         healthStore.execute(query)
     }
 
@@ -67,8 +101,13 @@ class HealthKitService {
         guard isAvailable,
               let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return }
 
+        // 옵저버 쿼리는 데이터 변경만 감지
         let query = HKObserverQuery(sampleType: stepType, predicate: nil) { [weak self] _, _, error in
-            guard error == nil else { return }
+            if let error = error {
+                NSLog("[HealthKitDebug] Observer error: \(error.localizedDescription)")
+                return
+            }
+            // 변경 감지 시 현재 걸음 수 다시 호출
             self?.fetchTodaySteps { steps in
                 DispatchQueue.main.async {
                     self?.onStepsUpdate?(steps)

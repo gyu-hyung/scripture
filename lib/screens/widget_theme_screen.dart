@@ -114,6 +114,9 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
 
     if (confirmed != true || !mounted) return;
 
+    // 건강 권한 요청 (iOS 전용)
+    await ref.read(liveActivityServiceProvider).requestHealthKitPermission();
+
     await ref.read(pinnedVerseProvider.notifier).pinVerse(
           widget.verse,
           themeId: _selectedTheme.id,

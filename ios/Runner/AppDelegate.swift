@@ -45,32 +45,51 @@ import ActivityKit
             }
             NSLog("[LiveActivityDebug] Flutter triggered startSession")
 
-            HealthKitService.shared.requestAuthorization { authorized in
-                NSLog("[LiveActivityDebug] HealthKit auth result: \(authorized)")
-                
-                // 파일 시스템 플러시 대기 (CPU가 파일을 완전히 기록할 시간을 줌)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    let defaults = UserDefaults(suiteName: "group.com.jgh.scripture")
-                    // 메모리 우선, 없으면 UserDefaults 시도
-                    let photoFilename = LiveActivityManager.shared.lastSavedPhotoFilename ?? defaults?.string(forKey: "customPhotoFilename")
-                    
-                    LiveActivityManager.shared.startActivity(
-                        verseText: verseText,
-                        verseRef: verseRef,
-                        themeId: themeId,
-                        customPhotoFilename: photoFilename,
-                        healthKitAuthorized: authorized
-                    )
-                    if authorized {
-                        HealthKitService.shared.fetchTodaySteps { steps in
-                            LiveActivityManager.shared.updateSteps(steps)
+            HealthKitService.shared.checkAuthorizationStatus { alreadyDetermined in
+                let startWithAuth: (Bool) -> Void = { authorized in
+                    NSLog("[LiveActivityDebug] Starting activity with authorized=\(authorized)")
+
+                    // 파일 시스템 플러시 대기
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        let defaults = UserDefaults(suiteName: "group.com.jgh.scripture")
+                        let photoFilename = LiveActivityManager.shared.lastSavedPhotoFilename ?? defaults?.string(forKey: "customPhotoFilename")
+
+                        LiveActivityManager.shared.startActivity(
+                            verseText: verseText,
+                            verseRef: verseRef,
+                            themeId: themeId,
+                            customPhotoFilename: photoFilename,
+                            healthKitAuthorized: authorized
+                        ) {
+                            // Activity 생성 완료 후 약간의 텀을 두고 걸음 수 fetch (초기화 레이스 컨디션 방지)
+                            if authorized {
+                                NSLog("[LiveActivityDebug] Setting up step observation")
+                                HealthKitService.shared.onStepsUpdate = { steps in
+                                    LiveActivityManager.shared.updateSteps(steps)
+                                }
+                                HealthKitService.shared.startObserving()
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    HealthKitService.shared.fetchTodaySteps { steps in
+                                        LiveActivityManager.shared.updateSteps(steps)
+                                    }
+                                }
+                            }
                         }
-                        HealthKitService.shared.onStepsUpdate = { steps in
-                            LiveActivityManager.shared.updateSteps(steps)
-                        }
-                        HealthKitService.shared.startObserving()
+                        result(nil)
                     }
-                    result(nil)
+                }
+
+                if alreadyDetermined {
+                    // 이미 권한 결정됨 (허용 또는 거부)
+                    HealthKitService.shared.requestAuthorization { success in
+                        // success는 팝업이 성공적으로 떴거나 이미 결정되었다는 뜻 (허용 여부가 아님)
+                        // 하지만 말씀 선택 후 세션 시작 시점에는 사용자가 허용했을 것을 가정하고 진행
+                        startWithAuth(true)
+                    }
+                } else {
+                    // 최초 실행: 권한 팝업 없이 Live Activity 시작 (걸음 수 대신 타이머)
+                    startWithAuth(false)
                 }
             }
 
@@ -121,19 +140,10 @@ import ActivityKit
             }
 
         case "requestHealthKitPermission":
-            if HealthKitService.shared.isAuthorizationDetermined {
-                // 이미 결정됨 → 설정 앱의 건강 권한 화면으로 이동
-                DispatchQueue.main.async {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
-                    }
-                }
+            // 사용자가 명시적으로 권한을 요청하는 경우 (주로 말씀 선택 후)
+            // 시스템 팝업을 띄워보고, 이미 선택했다면 아무것도 하지 않음 (설정창 강제 이동 제거)
+            HealthKitService.shared.requestAuthorization { _ in
                 result(nil)
-            } else {
-                // 미결정 → 시스템 다이얼로그 표시
-                HealthKitService.shared.requestAuthorization { _ in
-                    result(nil)
-                }
             }
 
         default:

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:workmanager/workmanager.dart';
 import 'app.dart';
@@ -31,26 +32,25 @@ void callbackDispatcher() {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isIOS || Platform.isAndroid) {
-    await HomeWidget.setAppGroupId(AppConstants.appGroupId);
-  }
-
-  // workmanager는 Android에서만 사용
-  // iOS는 WidgetKit TimelineProvider가 자체적으로 매일 갱신 처리
-  if (Platform.isAndroid) {
-    await Workmanager().initialize(callbackDispatcher);
-    await Workmanager().registerPeriodicTask(
-      _dailyVerseTask,
-      _dailyVerseTask,
-      frequency: const Duration(hours: 24),
-      constraints: Constraints(networkType: NetworkType.notRequired),
-      existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
-    );
-  }
+  // 네트워크 폰트 다운로드 차단 — 번들된 로컬 폰트만 사용
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   runApp(
     const ProviderScope(
       child: ScriptureApp(),
     ),
   );
+
+  // Workmanager는 UI에 영향 없으므로 백그라운드 초기화
+  if (Platform.isAndroid) {
+    Workmanager().initialize(callbackDispatcher).then((_) {
+      Workmanager().registerPeriodicTask(
+        _dailyVerseTask,
+        _dailyVerseTask,
+        frequency: const Duration(hours: 24),
+        constraints: Constraints(networkType: NetworkType.notRequired),
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+      );
+    });
+  }
 }

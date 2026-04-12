@@ -56,13 +56,15 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
     final liveActivityService = ref.read(liveActivityServiceProvider);
 
     await widgetService.pinVerse(verse, themeId: themeId);
-
-    // 고정 = 세션 시작 (Live Activity)
     final resolvedTheme = themeId ?? await widgetService.getCurrentThemeId();
-    await liveActivityService.startSession(verse, resolvedTheme);
 
+    // UI를 먼저 업데이트하고 세션은 비동기로 시작
+    // (HealthKit 권한 팝업 대기 중 로딩이 길어지는 문제 방지)
     state = AsyncValue.data(verse);
     ref.read(isPinnedProvider.notifier).refresh();
+
+    // 세션 시작 (Live Activity) — fire-and-forget
+    liveActivityService.startSession(verse, resolvedTheme);
   }
 
   Future<void> unpinVerse() async {

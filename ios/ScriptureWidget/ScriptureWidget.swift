@@ -328,8 +328,8 @@ struct ScriptureDynamicDataView: View {
                     .font(.system(size: isHorizontal ? 11 : 11, weight: .bold))
                     .foregroundColor(accentColor)
                     .monospacedDigit()
-                    .multilineTextAlignment(.center)
             }
+            .fixedSize(horizontal: true, vertical: false)
             .frame(width: isHorizontal ? nil : 60)
         } else {
             // 권한 허용 시: 걸음 수
@@ -343,10 +343,6 @@ struct ScriptureDynamicDataView: View {
                          : "\(state.stepCount)")
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(accentColor)
-                        .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
-                    Text("걸음")
-                        .font(.system(size: 9))
-                        .foregroundColor(textColor.opacity(0.6))
                         .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
                 }
             } else {
@@ -407,40 +403,42 @@ struct ScriptureLiveActivityLockView: View {
                 theme.background
             }
 
-            // 메인 컨텐츠 레이어
-            HStack(alignment: .bottom, spacing: 8) {
-                // 좌측: 말씀 세로 중앙 정렬
-                VStack(alignment: .leading) {
-                    Spacer()
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(context.attributes.verseRef)
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(isPhoto ? .white.opacity(0.85) : theme.accent)
-                            .lineLimit(1)
-                            .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
+            // 메인 컨텐츠 레이어 (VStack으로 변경하여 겹침 방지 및 우측 하단 정렬 보장)
+            VStack(alignment: .leading, spacing: 0) {
+                Spacer()
+                
+                // 말씀 및 구절 정보
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(context.attributes.verseRef)
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(isPhoto ? .white.opacity(0.85) : theme.accent)
+                        .lineLimit(1)
+                        .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
 
-                        Text(context.attributes.verseText)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(isPhoto ? .white : theme.text)
-                            .lineLimit(nil)
-                            .minimumScaleFactor(0.6)
-                            .truncationMode(.tail)
-                            .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
-                    }
-                    Spacer()
+                    Text(context.attributes.verseText)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(isPhoto ? .white : theme.text)
+                        .lineLimit(nil)
+                        .minimumScaleFactor(0.6)
+                        .truncationMode(.tail)
+                        .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                // 우측 하단 고정: 걸음 수 / 타이머
-                ScriptureDynamicDataView(
-                    state: context.state,
-                    accentColor: isPhoto ? .white.opacity(0.85) : theme.accent,
-                    textColor: isPhoto ? .white : theme.text,
-                    isHorizontal: true
-                )
+                
+                Spacer()
+                
+                // 하단 보조 정보 레이어: 우측 하단 정렬
+                HStack(spacing: 0) {
+                    Spacer()
+                    ScriptureDynamicDataView(
+                        state: context.state,
+                        accentColor: isPhoto ? .white.opacity(0.85) : theme.accent,
+                        textColor: isPhoto ? .white : theme.text,
+                        isHorizontal: true
+                    )
+                }
             }
             .padding(.horizontal, 10)
-            .padding(.vertical, 10)
+            .padding(.vertical, 8) // 하단 공간 확보
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
