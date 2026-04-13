@@ -1,4 +1,4 @@
-package com.scripture.scripture
+package com.jgh.malsseumdonghaeng
 
 import android.appwidget.AppWidgetManager
 import android.content.Context

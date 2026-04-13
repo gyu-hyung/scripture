@@ -1,4 +1,4 @@
-package com.scripture.scripture
+package com.jgh.malsseumdonghaeng
 
 import io.flutter.embedding.android.FlutterActivity
 
