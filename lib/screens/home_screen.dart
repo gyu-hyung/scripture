@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 import '../models/verse.dart';
 import '../providers/providers.dart';
+import '../utils/constants.dart';
 
 import 'chapter_screen.dart';
 import 'menu_screen.dart';
+import 'widget_theme_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -78,14 +81,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Future<void> _onStartSession() async {
     if (_isStarting) return;
 
-    // 1) 체크마크로 전환 + 햅틱
+    // 최초 실행 여부 확인 → 한 번도 설정한 적 없으면 테마 바텀시트 표시
+    final prefs = await SharedPreferences.getInstance();
+    final hasLaunched = prefs.getBool(AppConstants.keyHasLaunchedBefore) ?? false;
+
+    if (!hasLaunched) {
+      // 플래그 저장 (중복 표시 방지)
+      await prefs.setBool(AppConstants.keyHasLaunchedBefore, true);
+
+      final verse = ref.read(pinnedVerseProvider).value;
+      if (verse != null && mounted) {
+        await showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          isDismissible: true,
+          enableDrag: true,
+          builder: (_) => WidgetThemeBottomSheet(verse: verse),
+        );
+        // 바텀시트가 닫힌 뒤 세션 활성 상태 갱신 (햅틱과 함께)
+        if (mounted) {
+          HapticFeedback.mediumImpact();
+          setState(() => _isSessionActive = true);
+        }
+      }
+      return;
+    }
+
+    // 이후 실행: 기존 방식대로 바로 세션 시작
     setState(() => _isStarting = true);
     HapticFeedback.mediumImpact();
 
-    // 2) 세션 시작 (비동기)
     ref.read(pinnedVerseProvider.notifier).restartSession();
 
-    // 3) 체크마크를 잠깐 보여준 뒤 슬라이드아웃
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
     setState(() {
@@ -104,11 +132,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     // 고정 말씀 상태가 바뀔 때마다 세션 활성 여부 갱신
     ref.listen(pinnedVerseProvider, (prev, next) {
       next.whenData((verse) {
-        if (verse != null && verse.id != prev?.value?.id) {
-          // 새 말씀이 고정됨 → pinVerse()가 세션도 시작하므로 낙관적 업데이트
+        if (verse != null) {
+          // 새 말씀이 고정된 경우 (초기 설정이 아닌 경우)
+          if (prev?.value != null && verse.id != prev!.value!.id) {
+            HapticFeedback.mediumImpact();
+          }
           if (mounted) setState(() => _isSessionActive = true);
-        } else {
-          _checkSessionActive();
         }
       });
     });

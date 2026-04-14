@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/app_localizations.dart';
@@ -225,6 +226,7 @@ class _ChapterScreenState extends ConsumerState<ChapterScreen> {
       decoration: const BoxDecoration(color: Colors.transparent),
       child: ElevatedButton(
         onPressed: () {
+          HapticFeedback.mediumImpact();
           if (mounted) {
             Navigator.of(context).push(
               MaterialPageRoute(

@@ -41,12 +41,24 @@ class MenuScreen extends ConsumerWidget {
               title: l10n.menuHealthPermission,
               subtitle: l10n.menuHealthPermissionDesc,
               theme: theme,
-              onTap: () {
-                ref
-                    .read(liveActivityServiceProvider)
-                    .requestHealthKitPermission();
+              onTap: () async {
+                final svc = ref.read(liveActivityServiceProvider);
+                // 먼저 시스템 권한 팝업 시도
+                await svc.requestHealthKitPermission();
+                // 팝업이 뜨지 않는 경우(이미 결정된 경우) iOS 설정 앱으로 이동
+                await launchUrl(
+                  Uri.parse('x-apple-health://'),
+                  mode: LaunchMode.externalApplication,
+                ).catchError((_) async {
+                  // 건강 앱 딥링크 실패 시 앱 설정으로 fallback
+                  await launchUrl(
+                    Uri.parse('app-settings:'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                });
               },
             ),
+
           _MenuTile(
             icon: Icons.privacy_tip_outlined,
             iconColor: color,

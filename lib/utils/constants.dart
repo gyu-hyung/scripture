@@ -17,6 +17,7 @@ class AppConstants {
   static const String keyAutoRefresh = 'auto_refresh';
   static const String keyPinnedVerseId = 'pinned_verse_id';
   static const String keyIsPinned = 'is_pinned';
+  static const String keyHasLaunchedBefore = 'has_launched_before';
 
   // HomeWidget (Native Widget) Shared Keys
   static const String keyWidgetVerseText = 'verse_text';
