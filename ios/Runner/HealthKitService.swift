@@ -3,7 +3,7 @@ import Foundation
 
 class HealthKitService {
     static let shared = HealthKitService()
-    private let healthStore = HKHealthStore()
+    let healthStore = HKHealthStore()
     private var observerQuery: HKObserverQuery?
 
     var onStepsUpdate: ((Int) -> Void)?
@@ -78,19 +78,23 @@ class HealthKitService {
         
         query.initialResultsHandler = { _, results, error in
             if let error = error {
+                #if DEBUG
                 NSLog("[HealthKitDebug] fetchTodaySteps error: \(error.localizedDescription)")
+                #endif
                 completion(0)
                 return
             }
-            
+
             var totalSteps = 0
             results?.enumerateStatistics(from: startOfDay, to: now) { statistics, _ in
                 if let sum = statistics.sumQuantity() {
                     totalSteps += Int(sum.doubleValue(for: HKUnit.count()))
                 }
             }
-            
+
+            #if DEBUG
             NSLog("[HealthKitDebug] fetchTodaySteps success: \(totalSteps)")
+            #endif
             completion(totalSteps)
         }
         
@@ -104,16 +108,22 @@ class HealthKitService {
         // 1. 데이터 변경 시 백그라운드 배달 활성화 (앱이 종료 중이어도 OS가 백그라운드에서 감지 시 앱을 깨움)
         healthStore.enableBackgroundDelivery(for: stepType, frequency: .immediate) { success, error in
             if let error = error {
+                #if DEBUG
                 NSLog("[HealthKitDebug] enableBackgroundDelivery error: \(error.localizedDescription)")
+                #endif
             } else {
+                #if DEBUG
                 NSLog("[HealthKitDebug] enableBackgroundDelivery success: \(success)")
+                #endif
             }
         }
 
         // 2. 옵저버 쿼리 실행
         let query = HKObserverQuery(sampleType: stepType, predicate: nil) { [weak self] _, _, error in
             if let error = error {
+                #if DEBUG
                 NSLog("[HealthKitDebug] Observer error: \(error.localizedDescription)")
+                #endif
                 return
             }
             // 변경 감지 시 현재 걸음 수 다시 호출
