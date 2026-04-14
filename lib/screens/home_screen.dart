@@ -1,14 +1,15 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/app_localizations.dart';
 import '../models/verse.dart';
 import '../providers/providers.dart';
 
-
 import 'chapter_screen.dart';
+import 'menu_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -17,14 +18,30 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
   bool _navigatorShown = false;
   bool _isSessionActive = false;
+  bool _isStarting = false; // 체크마크 전환 상태
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkSessionActive();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkSessionActive();
+    }
   }
 
   Future<void> _checkSessionActive() async {
@@ -58,6 +75,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _navigatorShown = false;
   }
 
+  Future<void> _onStartSession() async {
+    if (_isStarting) return;
+
+    // 1) 체크마크로 전환 + 햅틱
+    setState(() => _isStarting = true);
+    HapticFeedback.mediumImpact();
+
+    // 2) 세션 시작 (비동기)
+    ref.read(pinnedVerseProvider.notifier).restartSession();
+
+    // 3) 체크마크를 잠깐 보여준 뒤 슬라이드아웃
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
+    setState(() {
+      _isSessionActive = true;
+      _isStarting = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final pinnedAsync = ref.watch(pinnedVerseProvider);
@@ -66,61 +102,175 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final color = theme.colorScheme.primary;
 
     // 고정 말씀 상태가 바뀔 때마다 세션 활성 여부 갱신
-    ref.listen(pinnedVerseProvider, (_, next) {
-      next.whenData((_) => _checkSessionActive());
+    ref.listen(pinnedVerseProvider, (prev, next) {
+      next.whenData((verse) {
+        if (verse != null && verse.id != prev?.value?.id) {
+          // 새 말씀이 고정됨 → pinVerse()가 세션도 시작하므로 낙관적 업데이트
+          if (mounted) setState(() => _isSessionActive = true);
+        } else {
+          _checkSessionActive();
+        }
+      });
     });
+
+    final showStartButton = !_isSessionActive &&
+        !_isStarting &&
+        Platform.isIOS &&
+        pinnedAsync.value != null;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: _isSessionActive && Platform.isIOS
-          ? AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              actions: [
-                IconButton(
-                  icon: Icon(
-                    Icons.favorite_rounded,
-                    color: color.withValues(alpha: 0.6),
-                    size: 22,
-                  ),
-                  tooltip: '건강 권한 설정',
-                  onPressed: () => ref
-                      .read(liveActivityServiceProvider)
-                      .requestHealthKitPermission(),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        actions: [
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 300),
+            opacity: _isSessionActive && Platform.isIOS ? 1.0 : 0.0,
+            child: IgnorePointer(
+              ignoring: !(_isSessionActive && Platform.isIOS),
+              child: IconButton(
+                icon: Icon(
+                  Icons.stop_circle_outlined,
+                  color: color.withValues(alpha: 0.6),
+                  size: 22,
                 ),
-                const SizedBox(width: 4),
-              ],
-            )
-          : null,
-      body: SafeArea(
-        child: pinnedAsync.when(
-          loading: () => Center(
-            child: CircularProgressIndicator(color: color, strokeWidth: 2),
-          ),
-          error: (e, _) => Center(
-            child: Text(
-              l10n.errorMsg(e.toString()),
-              style: TextStyle(color: theme.colorScheme.error),
+                tooltip: l10n.stopSession,
+                onPressed: () async {
+                  await ref
+                      .read(pinnedVerseProvider.notifier)
+                      .stopSessionOnly();
+                  if (mounted) setState(() => _isSessionActive = false);
+                },
+              ),
             ),
           ),
-          data: (verse) {
-            if (verse == null) {
-              // 말씀이 없으면 다음 프레임에서 자동으로 네비게이터 오픈
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _pinDefaultVerse();
-              });
-              return Center(
-                child: CircularProgressIndicator(color: color, strokeWidth: 2),
+          IconButton(
+            icon: Icon(
+              Icons.menu_rounded,
+              color: color.withValues(alpha: 0.6),
+              size: 22,
+            ),
+            tooltip: l10n.menu,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const MenuScreen()),
               );
-            }
-            return _PinnedVerseCenter(
-              verse: verse,
-              theme: theme,
-              color: color,
-              onTap: () => _navigateToChapter(verse),
-            );
-          },
+            },
+          ),
+          const SizedBox(width: 4),
+        ],
+      ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // 말씀 콘텐츠 (항상 화면 중앙)
+            pinnedAsync.when(
+              loading: () => Center(
+                child:
+                    CircularProgressIndicator(color: color, strokeWidth: 2),
+              ),
+              error: (e, _) => Center(
+                child: Text(
+                  l10n.errorMsg(e.toString()),
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+              ),
+              data: (verse) {
+                if (verse == null) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _pinDefaultVerse();
+                  });
+                  return Center(
+                    child: CircularProgressIndicator(
+                        color: color, strokeWidth: 2),
+                  );
+                }
+                return _PinnedVerseCenter(
+                  verse: verse,
+                  theme: theme,
+                  color: color,
+                  onTap: () => _navigateToChapter(verse),
+                );
+              },
+            ),
+            // 하단 버튼
+            Positioned(
+              left: 24,
+              right: 24,
+              bottom: 24,
+              child: _StartSessionButton(
+                visible: showStartButton || _isStarting,
+                isStarting: _isStarting,
+                color: color,
+                onPressed: _onStartSession,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── 세션 시작 버튼 (애니메이션 포함) ─────────────────────────────────────────
+
+class _StartSessionButton extends StatelessWidget {
+  final bool visible;
+  final bool isStarting;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _StartSessionButton({
+    required this.visible,
+    required this.isStarting,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return AnimatedSlide(
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInCubic,
+      offset: visible ? Offset.zero : const Offset(0, 2),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 300),
+        opacity: visible ? 1.0 : 0.0,
+        child: ElevatedButton(
+          onPressed: isStarting ? null : onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: color,
+            disabledForegroundColor: Colors.white,
+            minimumSize: const Size(double.infinity, 54),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
+            ),
+            elevation: 6,
+            shadowColor: color.withValues(alpha: 0.4),
+          ),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            transitionBuilder: (child, animation) => ScaleTransition(
+              scale: animation,
+              child: child,
+            ),
+            child: isStarting
+                ? const Icon(Icons.check_rounded, key: ValueKey('check'), size: 28)
+                : Text(
+                    l10n.startSession,
+                    key: const ValueKey('text'),
+                    style: GoogleFonts.gowunBatang(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+          ),
         ),
       ),
     );

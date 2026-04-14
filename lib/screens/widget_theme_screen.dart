@@ -125,7 +125,7 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
-  // ── 프리뷰 위젯 (실제 Live Activity 잠금화면 바 레이아웃과 동일) ────
+  // ── 프리뷰 위젯 (실제 Live Activity 잠금화면 레이아웃과 동일) ────
   Widget _buildPreview(ThemeData _) {
     final bgColor = _selectedTheme.background;
     final textColor = _selectedTheme.textColor;
@@ -134,81 +134,61 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: Container(
-        height: 120,
         width: double.infinity,
         decoration: BoxDecoration(
           color: bgColor,
         ),
         child: Stack(
-          fit: StackFit.expand,
           children: [
-            // 실제 콘텐츠
+            // 메인 컨텐츠: 참조 + 본문 (중앙 배치)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 상단: 참조 + 본문 (내용이 길면 얘만 축소됨)
-                  Expanded(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.topLeft,
-                      child: SizedBox(
-                        // FittedBox 안에서도 텍스트가 가로를 꽉 채우도록 가상 너비 설정
-                        width: MediaQuery.of(context).size.width - 48 - 32,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.verse.reference,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: accentColor,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.verse.text,
-                              style: GoogleFonts.gowunBatang(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  Text(
+                    widget.verse.reference,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: accentColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.verse.text,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
+                      height: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // 하단 바: 얘는 축소되지 않고 무조건 우측 끝에 붙음
+                  const SizedBox(height: 10),
+                  // 하단 우측: 걸음수 (잠금화면과 동일한 가로 배치)
                   Row(
                     children: [
                       const Spacer(),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text('👣', style: TextStyle(fontSize: 12)),
-                          const SizedBox(width: 4),
-                          Text(
-                            '0',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: accentColor,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '걸음',
-                            style: TextStyle(
-                              fontSize: 9,
-                              color: textColor.withValues(alpha: 0.6),
-                            ),
-                          ),
-                        ],
+                      const Text('👣', style: TextStyle(fontSize: 12)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '0',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: accentColor,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '걸음',
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: textColor.withValues(alpha: 0.6),
+                        ),
                       ),
                     ],
                   ),

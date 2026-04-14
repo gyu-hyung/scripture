@@ -227,4 +227,25 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get themeCustomPhotoHint => '갤러리에서 선택';
+
+  @override
+  String get stopSession => '세션 종료';
+
+  @override
+  String get startSession => '말씀 동행 시작';
+
+  @override
+  String get menu => '메뉴';
+
+  @override
+  String get menuHealthPermission => '건강 데이터 권한';
+
+  @override
+  String get menuHealthPermissionDesc => '걸음 수 표시를 위한 건강 데이터 접근 권한을 설정합니다.';
+
+  @override
+  String get menuPrivacyPolicy => '개인정보 처리방침';
+
+  @override
+  String get menuVersion => '버전';
 }

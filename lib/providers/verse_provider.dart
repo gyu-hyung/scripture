@@ -80,6 +80,20 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
     ref.read(isPinnedProvider.notifier).refresh();
   }
 
+  Future<void> stopSessionOnly() async {
+    final liveActivityService = ref.read(liveActivityServiceProvider);
+    await liveActivityService.stopSession();
+  }
+
+  Future<void> restartSession() async {
+    final verse = state.value;
+    if (verse == null) return;
+    final widgetService = ref.read(widgetServiceProvider);
+    final liveActivityService = ref.read(liveActivityServiceProvider);
+    final themeId = await widgetService.getCurrentThemeId();
+    await liveActivityService.startSession(verse, themeId);
+  }
+
   void refresh() => ref.invalidateSelf();
 }
 

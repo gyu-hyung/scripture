@@ -51,7 +51,7 @@ import ActivityKit
 
                     // 파일 시스템 플러시 대기
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        let defaults = UserDefaults(suiteName: "group.com.jgh.scripture")
+                        let defaults = UserDefaults(suiteName: "group.com.jgh.malsseumdonghaeng")
                         let photoFilename = LiveActivityManager.shared.lastSavedPhotoFilename ?? defaults?.string(forKey: "customPhotoFilename")
 
                         LiveActivityManager.shared.startActivity(
@@ -108,7 +108,7 @@ import ActivityKit
                 return
             }
             
-            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.jgh.scripture") {
+            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.jgh.malsseumdonghaeng") {
                 // 고유한 파일명 생성을 통해 캐시 문제 완전 해결
                 let timestamp = Int(Date().timeIntervalSince1970)
                 let filename = "bg_\(timestamp).jpg"
@@ -116,7 +116,7 @@ import ActivityKit
                 
                 // 메모리 보호를 위해 이미지 리사이징 및 압축 후 저장
                 if saveAndCompressImage(data: data.data, to: fileURL) {
-                    let defaults = UserDefaults(suiteName: "group.com.jgh.scripture")
+                    let defaults = UserDefaults(suiteName: "group.com.jgh.malsseumdonghaeng")
                     
                     // 기존에 저장된 다른 배경 파일들 삭제 (용량 관리)
                     if let oldFilename = defaults?.string(forKey: "customPhotoFilename") {

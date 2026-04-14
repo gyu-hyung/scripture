@@ -101,7 +101,16 @@ class HealthKitService {
         guard isAvailable,
               let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return }
 
-        // 옵저버 쿼리는 데이터 변경만 감지
+        // 1. 데이터 변경 시 백그라운드 배달 활성화 (앱이 종료 중이어도 OS가 백그라운드에서 감지 시 앱을 깨움)
+        healthStore.enableBackgroundDelivery(for: stepType, frequency: .immediate) { success, error in
+            if let error = error {
+                NSLog("[HealthKitDebug] enableBackgroundDelivery error: \(error.localizedDescription)")
+            } else {
+                NSLog("[HealthKitDebug] enableBackgroundDelivery success: \(success)")
+            }
+        }
+
+        // 2. 옵저버 쿼리 실행
         let query = HKObserverQuery(sampleType: stepType, predicate: nil) { [weak self] _, _, error in
             if let error = error {
                 NSLog("[HealthKitDebug] Observer error: \(error.localizedDescription)")

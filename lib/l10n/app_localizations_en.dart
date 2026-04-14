@@ -227,4 +227,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeCustomPhotoHint => 'Select from Gallery';
+
+  @override
+  String get stopSession => 'End Session';
+
+  @override
+  String get startSession => 'Start Session';
+
+  @override
+  String get menu => 'Menu';
+
+  @override
+  String get menuHealthPermission => 'Health Data Permission';
+
+  @override
+  String get menuHealthPermissionDesc =>
+      'Manage health data access for step count display.';
+
+  @override
+  String get menuPrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get menuVersion => 'Version';
 }

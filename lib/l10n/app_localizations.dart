@@ -499,6 +499,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select from Gallery'**
   String get themeCustomPhotoHint;
+
+  /// Button to stop Live Activity session
+  ///
+  /// In en, this message translates to:
+  /// **'End Session'**
+  String get stopSession;
+
+  /// Button to restart Live Activity session with current verse
+  ///
+  /// In en, this message translates to:
+  /// **'Start Session'**
+  String get startSession;
+
+  /// Menu button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menu;
+
+  /// Menu item for HealthKit permission
+  ///
+  /// In en, this message translates to:
+  /// **'Health Data Permission'**
+  String get menuHealthPermission;
+
+  /// Description for HealthKit permission menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Manage health data access for step count display.'**
+  String get menuHealthPermissionDesc;
+
+  /// Menu item for privacy policy
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get menuPrivacyPolicy;
+
+  /// Menu item for app version
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get menuVersion;
 }
 
 class _AppLocalizationsDelegate

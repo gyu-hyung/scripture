@@ -3,7 +3,7 @@ class AppConstants {
   static const String dbName = 'bible.db';
   static const String widgetAndroidName = 'ScriptureWidgetProvider';
   static const String widgetIosName = 'ScriptureWidgetV2';
-  static const String appGroupId = 'group.com.jgh.scripture';
+  static const String appGroupId = 'group.com.jgh.malsseumdonghaeng';
 
   // SharedPreferences keys
   static const String keyCurrentVerseId = 'current_verse_id';

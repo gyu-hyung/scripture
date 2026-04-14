@@ -15,7 +15,7 @@ struct VerseEntry: TimelineEntry {
 }
 
 // MARK: - UserDefaults App Group
-private let appGroupId = "group.com.jgh.scripture"
+private let appGroupId = "group.com.jgh.malsseumdonghaeng"
 private let keyVerseText = "verse_text"
 private let keyVerseReference = "verse_ref"
 private let keyIsPinned = "is_pinned"
@@ -68,7 +68,7 @@ struct ThemeColors {
 // MARK: - Custom Photo Helper
 
 func loadCustomPhoto(filename: String? = nil) -> Image? {
-    let appGroupId = "group.com.jgh.scripture"
+    let appGroupId = "group.com.jgh.malsseumdonghaeng"
     guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) else {
         return nil
     }
@@ -403,12 +403,10 @@ struct ScriptureLiveActivityLockView: View {
                 theme.background
             }
 
-            // 메인 컨텐츠 레이어 (VStack으로 변경하여 겹침 방지 및 우측 하단 정렬 보장)
-            VStack(alignment: .leading, spacing: 0) {
-                Spacer()
-                
-                // 말씀 및 구절 정보
-                VStack(alignment: .leading, spacing: 3) {
+            // 메인 컨텐츠 레이어
+            ZStack {
+                // 말씀 (참조 + 본문) — 위젯 전체 기준 정중앙
+                VStack(alignment: .leading, spacing: 4) {
                     Text(context.attributes.verseRef)
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(isPhoto ? .white.opacity(0.85) : theme.accent)
@@ -418,27 +416,32 @@ struct ScriptureLiveActivityLockView: View {
                     Text(context.attributes.verseText)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(isPhoto ? .white : theme.text)
+                        .multilineTextAlignment(.leading)
+                        .lineSpacing(2)
                         .lineLimit(nil)
                         .minimumScaleFactor(0.6)
                         .truncationMode(.tail)
                         .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
                 }
-                
-                Spacer()
-                
-                // 하단 보조 정보 레이어: 우측 하단 정렬
-                HStack(spacing: 0) {
+                .padding(.horizontal, 20)
+                .padding(.vertical, 20)
+
+                // 걸음수/타이머 — 우측 하단 (별도 레이어, 말씀 중앙에 영향 없음)
+                VStack {
                     Spacer()
-                    ScriptureDynamicDataView(
-                        state: context.state,
-                        accentColor: isPhoto ? .white.opacity(0.85) : theme.accent,
-                        textColor: isPhoto ? .white : theme.text,
-                        isHorizontal: true
-                    )
+                    HStack {
+                        Spacer()
+                        ScriptureDynamicDataView(
+                            state: context.state,
+                            accentColor: isPhoto ? .white.opacity(0.85) : theme.accent,
+                            textColor: isPhoto ? .white : theme.text,
+                            isHorizontal: true
+                        )
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 10)
                 }
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8) // 하단 공간 확보
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -454,39 +457,49 @@ struct ScriptureActivityConfiguration: Widget {
                 .activityBackgroundTint(Color.clear)
         } dynamicIsland: { context in
             let theme = getThemeColors(for: context.attributes.themeId)
+            let isPhoto = context.attributes.themeId == "custom_photo"
 
             return DynamicIsland {
                 // Expanded (길게 터치 시)
-                // 다이나믹 아일랜드 배경은 항상 검정이므로 흰색 계열 고정 사용
                 DynamicIslandExpandedRegion(.center) {
-                    HStack(alignment: .bottom, spacing: 8) {
-                        // 좌측: 말씀
-                        VStack(alignment: .leading, spacing: 3) {
+                    ZStack {
+                        // 말씀 (참조 + 본문) — 최대한 잠금 위젯(ScriptureLiveActivityLockView)과 동일하게 구성
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(context.attributes.verseRef)
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.white.opacity(0.7))
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(isPhoto ? .white.opacity(0.85) : theme.accent)
                                 .lineLimit(1)
+                                .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
 
                             Text(context.attributes.verseText)
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.white)
-                                .lineLimit(6)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(.white) // 다이나믹 아일랜드는 항상 배경이 검정이므로 흰색 고정
+                                .multilineTextAlignment(.leading)
+                                .lineSpacing(2)
+                                .lineLimit(nil)
+                                .minimumScaleFactor(0.6)
                                 .truncationMode(.tail)
-                                .fixedSize(horizontal: false, vertical: true)
+                                .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
 
-                        // 우측: 걸음 수 / 타이머 (가로)
-                        ScriptureDynamicDataView(
-                            state: context.state,
-                            accentColor: .white.opacity(0.85),
-                            textColor: .white,
-                            isHorizontal: true
-                        )
+                        // 걸음수/타이머 — 우측 하단 (잠금 위젯과 동일한 위치/패딩)
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                ScriptureDynamicDataView(
+                                    state: context.state,
+                                    accentColor: isPhoto ? .white.opacity(0.85) : theme.accent,
+                                    textColor: .white,
+                                    isHorizontal: true
+                                )
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
+                        }
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                    .padding(.horizontal, 8)
-                    .padding(.bottom, 8)
                 }
             } compactLeading: {
                 // Compact 좌측: 책 아이콘

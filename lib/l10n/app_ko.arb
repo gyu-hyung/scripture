@@ -132,5 +132,14 @@
   "softPromptCancel": "취소",
 
   "themeCustomPhoto": "나의 사진",
-  "themeCustomPhotoHint": "갤러리에서 선택"
+  "themeCustomPhotoHint": "갤러리에서 선택",
+
+  "stopSession": "세션 종료",
+  "startSession": "말씀 동행 시작",
+
+  "menu": "메뉴",
+  "menuHealthPermission": "건강 데이터 권한",
+  "menuHealthPermissionDesc": "걸음 수 표시를 위한 건강 데이터 접근 권한을 설정합니다.",
+  "menuPrivacyPolicy": "개인정보 처리방침",
+  "menuVersion": "버전"
 }

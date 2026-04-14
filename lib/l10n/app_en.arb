@@ -238,5 +238,26 @@
   "@themeCustomPhoto": { "description": "Custom photo widget theme name" },
 
   "themeCustomPhotoHint": "Select from Gallery",
-  "@themeCustomPhotoHint": { "description": "Hint shown on custom photo picker button" }
+  "@themeCustomPhotoHint": { "description": "Hint shown on custom photo picker button" },
+
+  "stopSession": "End Session",
+  "@stopSession": { "description": "Button to stop Live Activity session" },
+
+  "startSession": "Start Session",
+  "@startSession": { "description": "Button to restart Live Activity session with current verse" },
+
+  "menu": "Menu",
+  "@menu": { "description": "Menu button tooltip" },
+
+  "menuHealthPermission": "Health Data Permission",
+  "@menuHealthPermission": { "description": "Menu item for HealthKit permission" },
+
+  "menuHealthPermissionDesc": "Manage health data access for step count display.",
+  "@menuHealthPermissionDesc": { "description": "Description for HealthKit permission menu item" },
+
+  "menuPrivacyPolicy": "Privacy Policy",
+  "@menuPrivacyPolicy": { "description": "Menu item for privacy policy" },
+
+  "menuVersion": "Version",
+  "@menuVersion": { "description": "Menu item for app version" }
 }

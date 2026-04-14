@@ -71,7 +71,7 @@ class LiveActivityManager {
     func endActivity() {
         guard let activity = currentActivity else { return }
         Task {
-            await activity.end(dismissalPolicy: .default)
+            await activity.end(dismissalPolicy: .immediate)
         }
         currentActivity = nil
     }
