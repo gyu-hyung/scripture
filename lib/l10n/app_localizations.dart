@@ -473,7 +473,7 @@ abstract class AppLocalizations {
   /// Soft prompt bottom sheet body text
   ///
   /// In en, this message translates to:
-  /// **'Walk with today\'s verse on your lock screen for up to 8 hours while tracking your steps. Health data access is needed.'**
+  /// **'Walk with today\'s verse on your lock screen for up to 8 hours while tracking your steps. Motion & Fitness permission is needed to show steps.'**
   String get softPromptBody;
 
   /// Soft prompt confirm button
@@ -521,13 +521,13 @@ abstract class AppLocalizations {
   /// Menu item for HealthKit permission
   ///
   /// In en, this message translates to:
-  /// **'Health Data Permission'**
+  /// **'Motion & Fitness Permission'**
   String get menuHealthPermission;
 
   /// Description for HealthKit permission menu item
   ///
   /// In en, this message translates to:
-  /// **'Manage health data access for step count display.'**
+  /// **'Manage Motion & Fitness access for step count display.'**
   String get menuHealthPermissionDesc;
 
   /// Menu item for privacy policy

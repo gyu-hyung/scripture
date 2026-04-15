@@ -59,7 +59,7 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
     final resolvedTheme = themeId ?? await widgetService.getCurrentThemeId();
 
     // UI를 먼저 업데이트하고 세션은 비동기로 시작
-    // (HealthKit 권한 팝업 대기 중 로딩이 길어지는 문제 방지)
+    // (iOS 권한 팝업 대기 중 로딩이 길어지는 문제 방지)
     state = AsyncValue.data(verse);
     ref.read(isPinnedProvider.notifier).refresh();
 

@@ -214,7 +214,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get softPromptBody =>
-      'Walk with today\'s verse on your lock screen for up to 8 hours while tracking your steps. Health data access is needed.';
+      'Walk with today\'s verse on your lock screen for up to 8 hours while tracking your steps. Motion & Fitness permission is needed to show steps.';
 
   @override
   String get softPromptConfirm => 'Start';
@@ -238,11 +238,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menu => 'Menu';
 
   @override
-  String get menuHealthPermission => 'Health Data Permission';
+  String get menuHealthPermission => 'Motion & Fitness Permission';
 
   @override
   String get menuHealthPermissionDesc =>
-      'Manage health data access for step count display.';
+      'Manage Motion & Fitness access for step count display.';
 
   @override
   String get menuPrivacyPolicy => 'Privacy Policy';

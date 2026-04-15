@@ -1,16 +1,11 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import '../l10n/app_localizations.dart';
 import '../models/verse.dart';
 import '../models/widget_theme.dart';
 import '../providers/providers.dart';
-import '../utils/constants.dart';
 
 class WidgetThemeScreen extends ConsumerStatefulWidget {
   final Verse verse;
@@ -113,10 +108,13 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
       ),
     );
 
-    if (confirmed != true || !mounted) return;
+    if (confirmed == null || !mounted) return;
 
-    // 건강 권한 요청 (iOS 전용)
-    await ref.read(liveActivityServiceProvider).requestHealthKitPermission();
+    // 권한을 허용하지 않아도(또는 거부하더라도) 세션은 시작되어야 하므로
+    // "허용"을 선택한 경우에만 권한 요청을 시도합니다.
+    if (confirmed == true) {
+      await ref.read(liveActivityServiceProvider).requestMotionFitnessPermission();
+    }
 
     await ref.read(pinnedVerseProvider.notifier).pinVerse(
           widget.verse,
@@ -336,7 +334,7 @@ class _WidgetThemeBottomSheetState
     final theme = Theme.of(ctx);
     final l10n = AppLocalizations.of(ctx);
 
-    // HealthKit 권한 요청 안내 시트
+    // 동작 및 피트니스 권한 요청 안내 시트
     final confirmed = await showModalBottomSheet<bool>(
       context: ctx,
       backgroundColor: Colors.transparent,
@@ -420,10 +418,13 @@ class _WidgetThemeBottomSheetState
       ),
     );
 
-    if (confirmed != true || !mounted) return;
+    if (confirmed == null || !mounted) return;
 
-    // HealthKit 권한 요청
-    await ref.read(liveActivityServiceProvider).requestHealthKitPermission();
+    // 권한을 허용하지 않아도 세션은 시작되어야 하므로,
+    // "허용"을 선택한 경우에만 권한 요청을 시도합니다.
+    if (confirmed == true) {
+      await ref.read(liveActivityServiceProvider).requestMotionFitnessPermission();
+    }
 
     await ref.read(pinnedVerseProvider.notifier).pinVerse(
           widget.verse,

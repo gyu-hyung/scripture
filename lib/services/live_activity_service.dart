@@ -43,17 +43,19 @@ class LiveActivityService {
     }
   }
 
-  /// HealthKit 권한을 요청합니다.
+  /// iOS "동작 및 피트니스(Motion & Fitness)" 권한을 요청합니다.
   /// - 미결정 상태: 시스템 다이얼로그 표시
-  /// - 이미 결정된 상태: iOS 설정 앱으로 이동
   /// Android / iOS 16.2 미만에서는 아무 동작도 하지 않습니다.
-  Future<void> requestHealthKitPermission() async {
+  Future<void> requestMotionFitnessPermission() async {
     try {
       await _channel.invokeMethod<void>('requestHealthKitPermission');
     } on PlatformException catch (e) {
-      print('[LiveActivityService] requestHealthKitPermission failed: ${e.message}');
+      print('[LiveActivityService] requestMotionFitnessPermission failed: ${e.message}');
     } on MissingPluginException {
       // Android 또는 시뮬레이터 — 무시
     }
   }
+
+  @Deprecated('Use requestMotionFitnessPermission()')
+  Future<void> requestHealthKitPermission() => requestMotionFitnessPermission();
 }

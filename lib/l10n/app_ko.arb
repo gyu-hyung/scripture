@@ -127,7 +127,7 @@
 
   "startSessionButton": "말씀과 함께 일과 시작하기",
   "softPromptTitle": "잠금화면 말씀 세션",
-  "softPromptBody": "잠금화면에서 8시간 동안 말씀과 동행하며 걸음 수를 기록합니다. 이를 위해 건강 데이터 연동이 필요합니다.",
+  "softPromptBody": "잠금화면에서 8시간 동안 말씀과 동행하며 걸음 수를 기록합니다. 걸음 수 표시를 위해 ‘동작 및 피트니스’ 권한이 필요합니다.",
   "softPromptConfirm": "시작하기",
   "softPromptCancel": "취소",
 
@@ -138,8 +138,8 @@
   "startSession": "말씀 동행 시작",
 
   "menu": "메뉴",
-  "menuHealthPermission": "건강 데이터 권한",
-  "menuHealthPermissionDesc": "걸음 수 표시를 위한 건강 데이터 접근 권한을 설정합니다.",
+  "menuHealthPermission": "동작 및 피트니스 권한",
+  "menuHealthPermissionDesc": "걸음 수 표시를 위한 ‘동작 및 피트니스’ 권한을 설정합니다.",
   "menuPrivacyPolicy": "개인정보 처리방침",
   "menuVersion": "버전"
 }

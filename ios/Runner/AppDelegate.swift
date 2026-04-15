@@ -1,6 +1,6 @@
 import Flutter
 import UIKit
-import HealthKit
+import CoreMotion
 #if canImport(ActivityKit)
 import ActivityKit
 #endif
@@ -46,7 +46,7 @@ import ActivityKit
             }
             NSLog("[LiveActivityDebug] Flutter triggered startSession")
 
-            HealthKitService.shared.checkAuthorizationStatus { alreadyDetermined in
+            MotionFitnessService.shared.checkAuthorizationStatus { alreadyDetermined in
                 let startWithAuth: (Bool) -> Void = { authorized in
                     #if DEBUG
                     NSLog("[LiveActivityDebug] Starting activity with authorized=\(authorized)")
@@ -69,13 +69,13 @@ import ActivityKit
                                 #if DEBUG
                                 NSLog("[LiveActivityDebug] Setting up step observation")
                                 #endif
-                                HealthKitService.shared.onStepsUpdate = { steps in
+                                MotionFitnessService.shared.onStepsUpdate = { steps in
                                     LiveActivityManager.shared.updateSteps(steps)
                                 }
-                                HealthKitService.shared.startObserving()
+                                MotionFitnessService.shared.startObserving()
 
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    HealthKitService.shared.fetchTodaySteps { steps in
+                                    MotionFitnessService.shared.fetchTodaySteps { steps in
                                         LiveActivityManager.shared.updateSteps(steps)
                                     }
                                 }
@@ -87,14 +87,7 @@ import ActivityKit
 
                 if alreadyDetermined {
                     // 이미 권한 결정됨 (허용 또는 거부)
-                    // 실제 HealthKit 권한 상태를 확인하여 useTimer 플래그 정확하게 설정
-                    let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
-                    let authStatus = HealthKitService.shared.healthStore.authorizationStatus(for: stepType)
-                    let isHealthKitAuthorized = authStatus == .sharingAuthorized
-
-                    HealthKitService.shared.requestAuthorization { success in
-                        startWithAuth(isHealthKitAuthorized)
-                    }
+                    startWithAuth(MotionFitnessService.shared.isAuthorized)
                 } else {
                     // 최초 실행: 권한 팝업 없이 Live Activity 시작 (걸음 수 대신 타이머)
                     startWithAuth(false)
@@ -102,7 +95,7 @@ import ActivityKit
             }
 
         case "stopSession":
-            HealthKitService.shared.stopObserving()
+            MotionFitnessService.shared.stopObserving()
             LiveActivityManager.shared.endActivity()
             result(nil)
 
@@ -150,7 +143,7 @@ import ActivityKit
         case "requestHealthKitPermission":
             // 사용자가 명시적으로 권한을 요청하는 경우 (주로 말씀 선택 후)
             // 시스템 팝업을 띄워보고, 이미 선택했다면 아무것도 하지 않음 (설정창 강제 이동 제거)
-            HealthKitService.shared.requestAuthorization { _ in
+            MotionFitnessService.shared.requestAuthorization { _ in
                 result(nil)
             }
 

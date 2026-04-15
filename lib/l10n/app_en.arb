@@ -225,7 +225,7 @@
   "softPromptTitle": "Lock Screen Scripture Session",
   "@softPromptTitle": { "description": "Soft prompt bottom sheet title before HealthKit permission" },
 
-  "softPromptBody": "Walk with today's verse on your lock screen for up to 8 hours while tracking your steps. Health data access is needed.",
+  "softPromptBody": "Walk with today's verse on your lock screen for up to 8 hours while tracking your steps. Motion & Fitness permission is needed to show steps.",
   "@softPromptBody": { "description": "Soft prompt bottom sheet body text" },
 
   "softPromptConfirm": "Start",
@@ -249,10 +249,10 @@
   "menu": "Menu",
   "@menu": { "description": "Menu button tooltip" },
 
-  "menuHealthPermission": "Health Data Permission",
+  "menuHealthPermission": "Motion & Fitness Permission",
   "@menuHealthPermission": { "description": "Menu item for HealthKit permission" },
 
-  "menuHealthPermissionDesc": "Manage health data access for step count display.",
+  "menuHealthPermissionDesc": "Manage Motion & Fitness access for step count display.",
   "@menuHealthPermissionDesc": { "description": "Description for HealthKit permission menu item" },
 
   "menuPrivacyPolicy": "Privacy Policy",

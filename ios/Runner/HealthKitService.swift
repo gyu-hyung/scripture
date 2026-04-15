@@ -1,146 +1,101 @@
-import HealthKit
+import CoreMotion
 import Foundation
 
-class HealthKitService {
-    static let shared = HealthKitService()
-    let healthStore = HKHealthStore()
-    private var observerQuery: HKObserverQuery?
+/// iOS의 "동작 및 피트니스" 권한(CMPedometer) 기반 만보기.
+/// (기존 HealthKit 구현을 대체)
+class MotionFitnessService {
+    static let shared = MotionFitnessService()
+
+    private let pedometer = CMPedometer()
 
     var onStepsUpdate: ((Int) -> Void)?
 
     var isAvailable: Bool {
-        HKHealthStore.isHealthDataAvailable()
+        CMPedometer.isStepCountingAvailable()
     }
 
+    var isAuthorizationDetermined: Bool {
+        CMPedometer.authorizationStatus() != .notDetermined
+    }
+
+    var isAuthorized: Bool {
+        CMPedometer.authorizationStatus() == .authorized
+    }
+
+    /// 권한을 요청합니다.
+    /// CMPedometer는 별도의 request API가 없어서, query를 한 번 호출하여 시스템 팝업을 트리거합니다.
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
         guard isAvailable else {
             completion(false)
             return
         }
-        guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
+
+        let status = CMPedometer.authorizationStatus()
+        if status == .authorized {
+            completion(true)
+            return
+        }
+        if status == .denied || status == .restricted {
             completion(false)
             return
         }
-        healthStore.requestAuthorization(toShare: nil, read: [stepType]) { success, _ in
-            completion(success)
+
+        // .notDetermined: query 호출로 권한 팝업 유도
+        fetchTodaySteps { _ in
+            completion(self.isAuthorized)
         }
     }
 
-    /// 현재 걸음 수 읽기 권한 상태를 확인합니다.
-    /// iOS 13+에서는 getRequestStatusForAuthorization를 사용할 수 있습니다.
+    /// 권한이 이미 결정되었는지 확인합니다(허용/거부 포함).
     func checkAuthorizationStatus(completion: @escaping (Bool) -> Void) {
-        guard isAvailable,
-              let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
-            completion(false)
-            return
-        }
-        
-        if #available(iOS 13.0, *) {
-            healthStore.getRequestStatusForAuthorization(toShare: [], read: [stepType]) { status, error in
-                // .shouldRequest 면 아직 미결정 상태인 것임
-                completion(status != .shouldRequest)
-            }
-        } else {
-            // 구버전은 기존 방식 유지
-            completion(healthStore.authorizationStatus(for: stepType) != .notDetermined)
-        }
-    }
-
-    var isAuthorizationDetermined: Bool {
-        guard isAvailable,
-              let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
-            return false
-        }
-        return healthStore.authorizationStatus(for: stepType) != .notDetermined
+        completion(isAuthorizationDetermined)
     }
 
     func fetchTodaySteps(completion: @escaping (Int) -> Void) {
-        guard isAvailable,
-              let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
+        guard isAvailable else {
             completion(0)
             return
         }
 
         let now = Date()
         let startOfDay = Calendar.current.startOfDay(for: now)
-        
-        let interval = NSDateComponents()
-        interval.day = 1
-        
-        // 하루를 통째로 집계하는 컬렉션 쿼리 생성
-        let query = HKStatisticsCollectionQuery(
-            quantityType: stepType,
-            quantitySamplePredicate: nil,
-            options: .cumulativeSum,
-            anchorDate: startOfDay,
-            intervalComponents: interval as DateComponents
-        )
-        
-        query.initialResultsHandler = { _, results, error in
+
+        pedometer.queryPedometerData(from: startOfDay, to: now) { data, error in
             if let error = error {
                 #if DEBUG
-                NSLog("[HealthKitDebug] fetchTodaySteps error: \(error.localizedDescription)")
+                NSLog("[MotionFitnessDebug] fetchTodaySteps error: \(error.localizedDescription)")
                 #endif
                 completion(0)
                 return
             }
 
-            var totalSteps = 0
-            results?.enumerateStatistics(from: startOfDay, to: now) { statistics, _ in
-                if let sum = statistics.sumQuantity() {
-                    totalSteps += Int(sum.doubleValue(for: HKUnit.count()))
-                }
-            }
-
+            let steps = data?.numberOfSteps.intValue ?? 0
             #if DEBUG
-            NSLog("[HealthKitDebug] fetchTodaySteps success: \(totalSteps)")
+            NSLog("[MotionFitnessDebug] fetchTodaySteps success: \(steps)")
             #endif
-            completion(totalSteps)
+            completion(steps)
         }
-        
-        healthStore.execute(query)
     }
 
     func startObserving() {
-        guard isAvailable,
-              let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return }
+        guard isAvailable, isAuthorized else { return }
 
-        // 1. 데이터 변경 시 백그라운드 배달 활성화 (앱이 종료 중이어도 OS가 백그라운드에서 감지 시 앱을 깨움)
-        healthStore.enableBackgroundDelivery(for: stepType, frequency: .immediate) { success, error in
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        pedometer.startUpdates(from: startOfDay) { [weak self] data, error in
             if let error = error {
                 #if DEBUG
-                NSLog("[HealthKitDebug] enableBackgroundDelivery error: \(error.localizedDescription)")
-                #endif
-            } else {
-                #if DEBUG
-                NSLog("[HealthKitDebug] enableBackgroundDelivery success: \(success)")
-                #endif
-            }
-        }
-
-        // 2. 옵저버 쿼리 실행
-        let query = HKObserverQuery(sampleType: stepType, predicate: nil) { [weak self] _, _, error in
-            if let error = error {
-                #if DEBUG
-                NSLog("[HealthKitDebug] Observer error: \(error.localizedDescription)")
+                NSLog("[MotionFitnessDebug] startUpdates error: \(error.localizedDescription)")
                 #endif
                 return
             }
-            // 변경 감지 시 현재 걸음 수 다시 호출
-            self?.fetchTodaySteps { steps in
-                DispatchQueue.main.async {
-                    self?.onStepsUpdate?(steps)
-                }
+            let steps = data?.numberOfSteps.intValue ?? 0
+            DispatchQueue.main.async {
+                self?.onStepsUpdate?(steps)
             }
         }
-        observerQuery = query
-        healthStore.execute(query)
     }
 
     func stopObserving() {
-        if let query = observerQuery {
-            healthStore.stop(query)
-            observerQuery = nil
-        }
+        pedometer.stopUpdates()
     }
 }

@@ -214,7 +214,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get softPromptBody =>
-      '잠금화면에서 8시간 동안 말씀과 동행하며 걸음 수를 기록합니다. 이를 위해 건강 데이터 연동이 필요합니다.';
+      '잠금화면에서 8시간 동안 말씀과 동행하며 걸음 수를 기록합니다. 걸음 수 표시를 위해 ‘동작 및 피트니스’ 권한이 필요합니다.';
 
   @override
   String get softPromptConfirm => '시작하기';
@@ -238,10 +238,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get menu => '메뉴';
 
   @override
-  String get menuHealthPermission => '건강 데이터 권한';
+  String get menuHealthPermission => '동작 및 피트니스 권한';
 
   @override
-  String get menuHealthPermissionDesc => '걸음 수 표시를 위한 건강 데이터 접근 권한을 설정합니다.';
+  String get menuHealthPermissionDesc => '걸음 수 표시를 위한 ‘동작 및 피트니스’ 권한을 설정합니다.';
 
   @override
   String get menuPrivacyPolicy => '개인정보 처리방침';
