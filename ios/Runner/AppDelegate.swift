@@ -45,127 +45,115 @@ import ActivityKit
 
     @available(iOS 16.2, *)
     private func handleLiveActivityCall(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        switch call.method {
-        case "startSession":
-            guard let args = call.arguments as? [String: Any],
-                  let verseText = args["verseText"] as? String,
-                  let verseRef = args["verseRef"] as? String,
-                  let themeId = args["themeId"] as? String else {
-                result(FlutterError(code: "INVALID_ARGS", message: "verseText, verseRef, themeId required", details: nil))
-                return
-            }
+        // 모든 로직을 전역 에러 제어로 감싸서 크래시 방어
+        do {
+            switch call.method {
+            case "startSession":
+                guard let args = call.arguments as? [String: Any],
+                      let verseText = args["verseText"] as? String,
+                      let verseRef = args["verseRef"] as? String,
+                      let themeId = args["themeId"] as? String else {
+                    result(FlutterError(code: "INVALID_ARGS", message: "verseText, verseRef, themeId required", details: nil))
+                    return
+                }
 
-            // Live Activity 권한이 거부된 경우 Flutter에 알림
-            guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-                result(FlutterError(code: "ACTIVITIES_DISABLED", message: "Live Activities are disabled in Settings", details: nil))
-                return
-            }
+                guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+                    result(FlutterError(code: "ACTIVITIES_DISABLED", message: "Live Activities are disabled", details: nil))
+                    return
+                }
 
-            NSLog("[LiveActivityDebug] Flutter triggered startSession")
+                MotionFitnessService.shared.checkAuthorizationStatus { alreadyDetermined in
+                    let startWithAuth: (Bool) -> Void = { authorized in
+                        // 파일 시스템 대기 (권한 변경 직후의 시스템 불안정기 대비)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            let defaults = UserDefaults(suiteName: "group.com.jgh.malsseumdonghaeng")
+                            let photoFilename = LiveActivityManager.shared.lastSavedPhotoFilename ?? defaults?.string(forKey: "customPhotoFilename")
 
-            MotionFitnessService.shared.checkAuthorizationStatus { alreadyDetermined in
-                let startWithAuth: (Bool) -> Void = { authorized in
-                    #if DEBUG
-                    NSLog("[LiveActivityDebug] Starting activity with authorized=\(authorized)")
-                    #endif
-
-                    // 파일 시스템 플러시 대기
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        let defaults = UserDefaults(suiteName: "group.com.jgh.malsseumdonghaeng")
-                        let photoFilename = LiveActivityManager.shared.lastSavedPhotoFilename ?? defaults?.string(forKey: "customPhotoFilename")
-
-                        LiveActivityManager.shared.startActivity(
-                            verseText: verseText,
-                            verseRef: verseRef,
-                            themeId: themeId,
-                            customPhotoFilename: photoFilename,
-                            healthKitAuthorized: authorized
-                        ) {
-                            // Activity 생성 완료 후 약간의 텀을 두고 걸음 수 fetch (초기화 레이스 컨디션 방지)
-                            if authorized {
-                                #if DEBUG
-                                NSLog("[LiveActivityDebug] Setting up step observation")
-                                #endif
-                                MotionFitnessService.shared.onStepsUpdate = { steps in
-                                    LiveActivityManager.shared.updateSteps(steps)
-                                }
-                                MotionFitnessService.shared.startObserving()
-
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    MotionFitnessService.shared.fetchTodaySteps { steps in
+                            LiveActivityManager.shared.startActivity(
+                                verseText: verseText,
+                                verseRef: verseRef,
+                                themeId: themeId,
+                                customPhotoFilename: photoFilename,
+                                healthKitAuthorized: authorized
+                            ) {
+                                if authorized {
+                                    MotionFitnessService.shared.onStepsUpdate = { steps in
                                         LiveActivityManager.shared.updateSteps(steps)
+                                    }
+                                    MotionFitnessService.shared.startObserving()
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                        MotionFitnessService.shared.fetchTodaySteps { steps in
+                                            LiveActivityManager.shared.updateSteps(steps)
+                                        }
                                     }
                                 }
                             }
+                            result(nil)
                         }
-                        result(nil)
+                    }
+
+                    if alreadyDetermined {
+                        startWithAuth(MotionFitnessService.shared.isAuthorized)
+                    } else {
+                        startWithAuth(false)
                     }
                 }
 
-                if alreadyDetermined {
-                    // 이미 권한 결정됨 (허용 또는 거부)
-                    startWithAuth(MotionFitnessService.shared.isAuthorized)
-                } else {
-                    // 최초 실행: 권한 팝업 없이 Live Activity 시작 (걸음 수 대신 타이머)
-                    startWithAuth(false)
-                }
-            }
-
-        case "stopSession":
-            MotionFitnessService.shared.stopObserving()
-            LiveActivityManager.shared.endActivity()
-            result(nil)
-
-        case "isSessionActive":
-            result(LiveActivityManager.shared.isActive)
-
-        case "saveCustomPhoto":
-            guard let args = call.arguments as? [String: Any],
-                  let data = args["data"] as? FlutterStandardTypedData else {
-                result(FlutterError(code: "INVALID_ARGS", message: "data required", details: nil))
-                return
-            }
-            
-            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.jgh.malsseumdonghaeng") {
-                // 고유한 파일명 생성을 통해 캐시 문제 완전 해결
-                let timestamp = Int(Date().timeIntervalSince1970)
-                let filename = "bg_\(timestamp).jpg"
-                let fileURL = containerURL.appendingPathComponent(filename)
-                
-                // 메모리 보호를 위해 이미지 리사이징 및 압축 후 저장
-                if saveAndCompressImage(data: data.data, to: fileURL) {
-                    let defaults = UserDefaults(suiteName: "group.com.jgh.malsseumdonghaeng")
-                    
-                    // 기존에 저장된 다른 배경 파일들 삭제 (용량 관리)
-                    if let oldFilename = defaults?.string(forKey: "customPhotoFilename") {
-                        let oldURL = containerURL.appendingPathComponent(oldFilename)
-                        try? FileManager.default.removeItem(at: oldURL)
-                    }
-                    
-                    defaults?.set(filename, forKey: "customPhotoFilename")
-                    defaults?.removeObject(forKey: "customPhotoData")
-                    defaults?.synchronize()
-                    
-                    // 메모리 추적 업데이트
-                    LiveActivityManager.shared.lastSavedPhotoFilename = filename
-                    
-                    result(nil)
-                } else {
-                    result(FlutterError(code: "SAVE_FAILED", message: "Failed to process and save image", details: nil))
-                }
-            } else {
-                result(FlutterError(code: "NO_APP_GROUP", message: "App Group container not found", details: nil))
-            }
-
-        case "requestMotionFitnessPermission":
-            // 사용자가 명시적으로 권한을 요청하는 경우 (주로 말씀 선택 후)
-            // 시스템 팝업을 띄워보고, 이미 선택했다면 아무것도 하지 않음 (설정창 강제 이동 제거)
-            MotionFitnessService.shared.requestAuthorization { _ in
+            case "stopSession":
+                MotionFitnessService.shared.stopObserving()
+                LiveActivityManager.shared.endActivity()
                 result(nil)
-            }
 
-        default:
-            result(FlutterMethodNotImplemented)
+            case "isSessionActive":
+                result(LiveActivityManager.shared.isActive)
+
+            case "isLiveActivityEnabled":
+                result(ActivityAuthorizationInfo().areActivitiesEnabled)
+
+            case "saveCustomPhoto":
+                guard let args = call.arguments as? [String: Any],
+                      let data = args["data"] as? FlutterStandardTypedData else {
+                    result(FlutterError(code: "INVALID_ARGS", message: "data required", details: nil))
+                    return
+                }
+                
+                if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.jgh.malsseumdonghaeng") {
+                    let timestamp = Int(Date().timeIntervalSince1970)
+                    let filename = "bg_\(timestamp).jpg"
+                    let fileURL = containerURL.appendingPathComponent(filename)
+                    
+                    if saveAndCompressImage(data: data.data, to: fileURL) {
+                        let defaults = UserDefaults(suiteName: "group.com.jgh.malsseumdonghaeng")
+                        if let oldFilename = defaults?.string(forKey: "customPhotoFilename") {
+                            let oldURL = containerURL.appendingPathComponent(oldFilename)
+                            try? FileManager.default.removeItem(at: oldURL)
+                        }
+                        defaults?.set(filename, forKey: "customPhotoFilename")
+                        defaults?.removeObject(forKey: "customPhotoData")
+                        defaults?.synchronize()
+                        LiveActivityManager.shared.lastSavedPhotoFilename = filename
+                        result(nil)
+                    } else {
+                        result(FlutterError(code: "SAVE_FAILED", message: "Failed to save image", details: nil))
+                    }
+                } else {
+                    result(FlutterError(code: "NO_APP_GROUP", message: "App Group container not found", details: nil))
+                }
+
+            case "requestMotionFitnessPermission":
+                MotionFitnessService.shared.requestAuthorization { _ in
+                    result(nil)
+                }
+
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        } catch {
+            #if DEBUG
+            NSLog("[LiveActivityDebug] Critical crash prevented in handleLiveActivityCall: \(error.localizedDescription)")
+            #endif
+            result(FlutterError(code: "CRITICAL_ERROR", message: error.localizedDescription, details: nil))
         }
     }
 

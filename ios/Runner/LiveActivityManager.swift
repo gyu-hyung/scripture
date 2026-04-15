@@ -39,10 +39,10 @@ class LiveActivityManager {
                 await activity.end(dismissalPolicy: .immediate)
             }
 
-            #if DEBUG
-            NSLog("[LiveActivityDebug] Attempting to start...")
-            #endif
             do {
+                #if DEBUG
+                NSLog("[LiveActivityDebug] Attempting to request new Activity...")
+                #endif
                 let activity = try Activity<ScriptureActivityAttributes>.request(
                     attributes: attributes,
                     contentState: contentState,
@@ -50,13 +50,12 @@ class LiveActivityManager {
                 )
                 await MainActor.run { self.currentActivity = activity }
                 #if DEBUG
-                NSLog("[LiveActivityDebug] Success!")
+                NSLog("[LiveActivityDebug] Activity successfully started!")
                 #endif
             } catch {
                 #if DEBUG
-                NSLog("[LiveActivityDebug] Failed to start: \(error.localizedDescription)")
+                NSLog("[LiveActivityDebug] Failed to request Activity: \(error.localizedDescription)")
                 #endif
-                print("[LiveActivity] Failed to start: \(error.localizedDescription)")
             }
 
             await MainActor.run { completion?() }
@@ -68,20 +67,32 @@ class LiveActivityManager {
         // 타이머 모드일 경우 걸음 수 업데이트 불필요
         guard activity.contentState.useTimer == false else { return }
         Task {
-            let updatedState = ScriptureActivityAttributes.ContentState(
-                stepCount: steps,
-                useTimer: false,
-                sessionStartDate: activity.contentState.sessionStartDate,
-                customPhotoFilename: activity.contentState.customPhotoFilename
-            )
-            await activity.update(using: updatedState)
+            do {
+                let updatedState = ScriptureActivityAttributes.ContentState(
+                    stepCount: steps,
+                    useTimer: false,
+                    sessionStartDate: activity.contentState.sessionStartDate,
+                    customPhotoFilename: activity.contentState.customPhotoFilename
+                )
+                try await activity.update(using: updatedState)
+            } catch {
+                #if DEBUG
+                NSLog("[LiveActivityDebug] Failed to update steps: \(error.localizedDescription)")
+                #endif
+            }
         }
     }
 
     func endActivity() {
         guard let activity = currentActivity else { return }
         Task {
-            await activity.end(dismissalPolicy: .immediate)
+            do {
+                await activity.end(dismissalPolicy: .immediate)
+            } catch {
+                #if DEBUG
+                NSLog("[LiveActivityDebug] Failed to end activity: \(error.localizedDescription)")
+                #endif
+            }
         }
         currentActivity = nil
     }

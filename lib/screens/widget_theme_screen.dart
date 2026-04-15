@@ -491,11 +491,26 @@ class _WidgetThemeBottomSheetState extends ConsumerState<WidgetThemeBottomSheet>
       child: Container(
         color: theme.colorScheme.surface,
         child: Stack(
+          alignment: Alignment.bottomCenter,
           children: [
-            // 기존 테마 선택 시트 내용
-            Padding(
-              padding: EdgeInsets.fromLTRB(24, 16, 24, bottomPadding + 16),
-              child: _buildThemeSelectionStep(theme),
+            // [Fix] 기존 테마 선택 시트 내용: 스르륵 올라올 때 뒤로 살짝 물러나는 효과 (레이어드 UI)
+            AnimatedBuilder(
+              animation: _bottomSheetController,
+              builder: (context, child) {
+                final scale = 1.0 - (0.04 * _bottomSheetController.value);
+                final opacity = 1.0 - (0.5 * _bottomSheetController.value);
+                return Transform.scale(
+                  scale: scale,
+                  alignment: Alignment.topCenter,
+                  child: Opacity(
+                    opacity: opacity,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(24, 16, 24, bottomPadding + 16),
+                      child: _buildThemeSelectionStep(theme),
+                    ),
+                  ),
+                );
+              },
             ),
 
             // 스르륵 올라올 때 배경을 살짝 어둡게 (딤 효과)

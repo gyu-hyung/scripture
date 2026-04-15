@@ -57,16 +57,72 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
+  bool _liveActivityDialogShown = false;
+
   Future<void> _checkSessionActive() async {
     try {
       if (!mounted) return;
-      final active = await ref
-          .read(liveActivityServiceProvider)
-          .isSessionActive;
+      final svc = ref.read(liveActivityServiceProvider);
+      final active = await svc.isSessionActive;
       if (mounted) setState(() => _isSessionActive = active);
+
+      // 세션이 비활성이고 Live Activity 권한이 거부된 경우 안내
+      // (첫 번째 "허용 안 함" 후 앱으로 복귀하는 케이스 포함)
+      if (!active && Platform.isIOS && !_liveActivityDialogShown) {
+        final isPinned = ref.read(isPinnedProvider).value ?? false;
+        if (isPinned) {
+          final enabled = await svc.isLiveActivityEnabled;
+          if (!enabled && mounted) {
+            _liveActivityDialogShown = true;
+            _showLiveActivityDisabledDialog();
+          }
+        }
+      }
     } catch (_) {
       // MethodChannel 호출 실패 시 무시
     }
+  }
+
+  void _showLiveActivityDisabledDialog() {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          l10n.liveActivityDisabledTitle,
+          style: GoogleFonts.gowunBatang(
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
+          ),
+        ),
+        content: Text(
+          l10n.liveActivityDisabledBody,
+          style: GoogleFonts.gowunBatang(
+            fontSize: 14,
+            height: 1.6,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.softPromptCancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              launchUrl(Uri.parse('app-settings:'));
+            },
+            child: Text(l10n.liveActivityDisabledOpenSettings),
+          ),
+        ],
+      ),
+    ).then((_) {
+      // 다이얼로그 닫힌 후 다시 감지 가능하도록 리셋
+      _liveActivityDialogShown = false;
+    });
   }
 
   void _navigateToChapter(Verse verse) {
@@ -81,29 +137,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       ),
     );
   }
-
-  // Future<void> _checkSessionActive() async {
-  //   try {
-  //     if (!mounted) return;
-  //     final active = await ref.read(liveActivityServiceProvider).isSessionActive;
-  //     if (mounted) setState(() => _isSessionActive = active);
-  //   } catch (_) {
-  //     // MethodChannel 호출 실패 시 무시
-  //   }
-  // }
-
-  // void _navigateToChapter(Verse verse) {
-  //   Navigator.of(context).push(
-  //     MaterialPageRoute(
-  //       builder: (_) => ChapterScreen(
-  //         bookId: verse.bookId,
-  //         bookName: verse.bookName ?? verse.bookAbbreviation ?? '',
-  //         chapter: verse.chapter,
-  //         highlightVerse: verse.verse,
-  //       ),
-  //     ),
-  //   );
-  // }
 
   /// 말씀이 없을 때 요한복음 1:1을 자동 고정
   Future<void> _pinDefaultVerse() async {

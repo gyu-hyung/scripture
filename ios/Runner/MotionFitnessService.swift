@@ -7,7 +7,13 @@ class MotionFitnessService {
     static let shared = MotionFitnessService()
 
     // lazy를 통해 실제 필요한 시점에 하드웨어 자원(CMPedometer)에 접근
-    private lazy var pedometer = CMPedometer()
+    private var _pedometer: CMPedometer?
+    private var pedometer: CMPedometer {
+        if _pedometer == nil && isAvailable {
+            _pedometer = CMPedometer()
+        }
+        return _pedometer ?? CMPedometer() // Fallback to avoid crash, but guarded by isAvailable
+    }
 
     var onStepsUpdate: ((Int) -> Void)?
 
@@ -16,11 +22,13 @@ class MotionFitnessService {
     }
 
     var isAuthorizationDetermined: Bool {
-        CMPedometer.authorizationStatus() != .notDetermined
+        guard isAvailable else { return true } // Not available means we can't do anything, treat as determined
+        return CMPedometer.authorizationStatus() != .notDetermined
     }
 
     var isAuthorized: Bool {
-        CMPedometer.authorizationStatus() == .authorized
+        guard isAvailable else { return false }
+        return CMPedometer.authorizationStatus() == .authorized
     }
 
     /// 권한을 요청합니다.
@@ -62,19 +70,21 @@ class MotionFitnessService {
         let startOfDay = Calendar.current.startOfDay(for: now)
 
         pedometer.queryPedometerData(from: startOfDay, to: now) { data, error in
-            if let error = error {
-                #if DEBUG
-                NSLog("[MotionFitnessDebug] fetchTodaySteps error: \(error.localizedDescription)")
-                #endif
-                completion(0)
-                return
-            }
+            DispatchQueue.main.async {
+                if let error = error {
+                    #if DEBUG
+                    NSLog("[MotionFitnessDebug] fetchTodaySteps error: \(error.localizedDescription)")
+                    #endif
+                    completion(0)
+                    return
+                }
 
-            let steps = data?.numberOfSteps.intValue ?? 0
-            #if DEBUG
-            NSLog("[MotionFitnessDebug] fetchTodaySteps success: \(steps)")
-            #endif
-            completion(steps)
+                let steps = data?.numberOfSteps.intValue ?? 0
+                #if DEBUG
+                NSLog("[MotionFitnessDebug] fetchTodaySteps success: \(steps)")
+                #endif
+                completion(steps)
+            }
         }
     }
 
@@ -83,14 +93,14 @@ class MotionFitnessService {
 
         let startOfDay = Calendar.current.startOfDay(for: Date())
         pedometer.startUpdates(from: startOfDay) { [weak self] data, error in
-            if let error = error {
-                #if DEBUG
-                NSLog("[MotionFitnessDebug] startUpdates error: \(error.localizedDescription)")
-                #endif
-                return
-            }
-            let steps = data?.numberOfSteps.intValue ?? 0
             DispatchQueue.main.async {
+                if let error = error {
+                    #if DEBUG
+                    NSLog("[MotionFitnessDebug] startUpdates error: \(error.localizedDescription)")
+                    #endif
+                    return
+                }
+                let steps = data?.numberOfSteps.intValue ?? 0
                 self?.onStepsUpdate?(steps)
             }
         }
