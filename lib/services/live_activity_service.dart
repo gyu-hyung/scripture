@@ -6,18 +6,24 @@ class LiveActivityService {
 
   /// 말씀 고정과 동시에 Live Activity 세션을 시작합니다.
   /// iOS 16.2 미만 기기에서는 아무 동작도 하지 않습니다.
-  Future<void> startSession(Verse verse, String themeId) async {
+  /// 반환값: null이면 성공, 'ACTIVITIES_DISABLED'이면 권한 거부됨.
+  Future<String?> startSession(Verse verse, String themeId) async {
     try {
       await _channel.invokeMethod<void>('startSession', {
         'verseText': verse.text,
         'verseRef': verse.reference,
         'themeId': themeId,
       });
+      return null;
     } on PlatformException catch (e) {
-      // 시스템이 Live Activities를 지원하지 않거나 권한 없음 — 무시
+      if (e.code == 'ACTIVITIES_DISABLED') {
+        return 'ACTIVITIES_DISABLED';
+      }
       print('[LiveActivityService] startSession failed: ${e.message}');
+      return null;
     } on MissingPluginException {
       // Android 또는 시뮬레이터 — 무시
+      return null;
     }
   }
 

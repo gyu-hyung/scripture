@@ -512,6 +512,24 @@ abstract class AppLocalizations {
   /// **'Start Session'**
   String get startSession;
 
+  /// Title for Live Activity permission denied dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Live Activities Disabled'**
+  String get liveActivityDisabledTitle;
+
+  /// Body for Live Activity permission denied dialog
+  ///
+  /// In en, this message translates to:
+  /// **'To display verses on the lock screen, please enable Live Activities.\n\nSettings → Scripture Companion → Live Activities → Allow'**
+  String get liveActivityDisabledBody;
+
+  /// Button to open iOS Settings app
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get liveActivityDisabledOpenSettings;
+
   /// Menu button tooltip
   ///
   /// In en, this message translates to:
@@ -523,6 +541,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Motion & Fitness Permission'**
   String get menuHealthPermission;
+
+  /// Warning shown before opening Settings for Health permission
+  ///
+  /// In en, this message translates to:
+  /// **'Changing permissions in the Settings app will automatically restart this app due to iOS policy.\n\nWould you like to open Settings?'**
+  String get menuHealthPermissionWarning;
 
   /// Description for HealthKit permission menu item
   ///

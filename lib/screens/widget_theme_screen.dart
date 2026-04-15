@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../models/verse.dart';
 import '../models/widget_theme.dart';
@@ -116,12 +117,55 @@ class _WidgetThemeScreenState extends ConsumerState<WidgetThemeScreen> {
       await ref.read(liveActivityServiceProvider).requestMotionFitnessPermission();
     }
 
-    await ref.read(pinnedVerseProvider.notifier).pinVerse(
+    final result = await ref.read(pinnedVerseProvider.notifier).pinVerse(
           widget.verse,
           themeId: _selectedTheme.id,
         );
     if (!mounted) return;
     Navigator.of(context).popUntil((route) => route.isFirst);
+
+    if (result == 'ACTIVITIES_DISABLED' && context.mounted) {
+      _showLiveActivityDisabledDialogScreen(context);
+    }
+  }
+
+  void _showLiveActivityDisabledDialogScreen(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx);
+    final theme = Theme.of(ctx);
+    showDialog(
+      context: ctx,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          l10n.liveActivityDisabledTitle,
+          style: GoogleFonts.gowunBatang(
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
+          ),
+        ),
+        content: Text(
+          l10n.liveActivityDisabledBody,
+          style: GoogleFonts.gowunBatang(
+            fontSize: 14,
+            height: 1.6,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: Text(l10n.softPromptCancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              launchUrl(Uri.parse('app-settings:'));
+            },
+            child: Text(l10n.liveActivityDisabledOpenSettings),
+          ),
+        ],
+      ),
+    );
   }
 
   // ── 프리뷰 위젯 (실제 Live Activity 잠금화면 레이아웃과 동일) ────
@@ -426,13 +470,56 @@ class _WidgetThemeBottomSheetState
       await ref.read(liveActivityServiceProvider).requestMotionFitnessPermission();
     }
 
-    await ref.read(pinnedVerseProvider.notifier).pinVerse(
+    final result = await ref.read(pinnedVerseProvider.notifier).pinVerse(
           widget.verse,
           themeId: _selectedTheme.id,
         );
 
     if (!mounted) return;
     Navigator.of(context).pop(); // 바텀시트 닫기
+
+    if (result == 'ACTIVITIES_DISABLED' && context.mounted) {
+      _showLiveActivityDisabledDialog(context);
+    }
+  }
+
+  void _showLiveActivityDisabledDialog(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx);
+    final theme = Theme.of(ctx);
+    showDialog(
+      context: ctx,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          l10n.liveActivityDisabledTitle,
+          style: GoogleFonts.gowunBatang(
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
+          ),
+        ),
+        content: Text(
+          l10n.liveActivityDisabledBody,
+          style: GoogleFonts.gowunBatang(
+            fontSize: 14,
+            height: 1.6,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: Text(l10n.softPromptCancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              launchUrl(Uri.parse('app-settings:'));
+            },
+            child: Text(l10n.liveActivityDisabledOpenSettings),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildPreview() {

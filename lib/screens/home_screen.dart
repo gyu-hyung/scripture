@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../models/verse.dart';
 import '../providers/providers.dart';
@@ -42,14 +43,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkSessionActive();
+    if (state == AppLifecycleState.resumed && mounted) {
+      // 엔진 안정화 후 체크 (복귀 직후 MethodChannel 호출 크래시 방지)
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) _checkSessionActive();
+      });
     }
   }
 
   Future<void> _checkSessionActive() async {
-    final active = await ref.read(liveActivityServiceProvider).isSessionActive;
-    if (mounted) setState(() => _isSessionActive = active);
+    try {
+      if (!mounted) return;
+      final active = await ref.read(liveActivityServiceProvider).isSessionActive;
+      if (mounted) setState(() => _isSessionActive = active);
+    } catch (_) {
+      // MethodChannel 호출 실패 시 무시
+    }
   }
 
   void _navigateToChapter(Verse verse) {
@@ -61,6 +70,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           chapter: verse.chapter,
           highlightVerse: verse.verse,
         ),
+      ),
+    );
+  }
+
+  void _showLiveActivityDisabledDialog() {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          l10n.liveActivityDisabledTitle,
+          style: GoogleFonts.gowunBatang(
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
+          ),
+        ),
+        content: Text(
+          l10n.liveActivityDisabledBody,
+          style: GoogleFonts.gowunBatang(
+            fontSize: 14,
+            height: 1.6,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.softPromptCancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              launchUrl(Uri.parse('app-settings:'));
+            },
+            child: Text(l10n.liveActivityDisabledOpenSettings),
+          ),
+        ],
       ),
     );
   }
@@ -112,7 +160,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     setState(() => _isStarting = true);
     HapticFeedback.mediumImpact();
 
-    ref.read(pinnedVerseProvider.notifier).restartSession();
+    final result = await ref.read(pinnedVerseProvider.notifier).restartSession();
+
+    if (result == 'ACTIVITIES_DISABLED' && mounted) {
+      setState(() => _isStarting = false);
+      _showLiveActivityDisabledDialog();
+      return;
+    }
 
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;

@@ -42,14 +42,46 @@ class MenuScreen extends ConsumerWidget {
               subtitle: l10n.menuHealthPermissionDesc,
               theme: theme,
               onTap: () async {
-                final svc = ref.read(liveActivityServiceProvider);
-                // 먼저 시스템 권한 팝업 시도 (동작 및 피트니스)
-                await svc.requestMotionFitnessPermission();
-                // 이미 결정된 경우(또는 팝업이 뜨지 않는 경우) 앱 설정으로 이동
-                await launchUrl(
-                  Uri.parse('app-settings:'),
-                  mode: LaunchMode.externalApplication,
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    title: Text(
+                      l10n.menuHealthPermission,
+                      style: GoogleFonts.gowunBatang(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 17,
+                      ),
+                    ),
+                    content: Text(
+                      l10n.menuHealthPermissionWarning,
+                      style: GoogleFonts.gowunBatang(
+                        fontSize: 14,
+                        height: 1.6,
+                        color: theme.colorScheme.onSurface
+                            .withValues(alpha: 0.7),
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: Text(l10n.softPromptCancel),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: Text(l10n.liveActivityDisabledOpenSettings),
+                      ),
+                    ],
+                  ),
                 );
+                if (confirmed == true && context.mounted) {
+                  await launchUrl(
+                    Uri.parse('app-settings:'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                }
               },
             ),
 

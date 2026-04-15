@@ -44,6 +44,13 @@ import ActivityKit
                 result(FlutterError(code: "INVALID_ARGS", message: "verseText, verseRef, themeId required", details: nil))
                 return
             }
+
+            // Live Activity 권한이 거부된 경우 Flutter에 알림
+            guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+                result(FlutterError(code: "ACTIVITIES_DISABLED", message: "Live Activities are disabled in Settings", details: nil))
+                return
+            }
+
             NSLog("[LiveActivityDebug] Flutter triggered startSession")
 
             MotionFitnessService.shared.checkAuthorizationStatus { alreadyDetermined in

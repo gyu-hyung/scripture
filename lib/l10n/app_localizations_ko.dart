@@ -235,10 +235,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get startSession => '말씀 동행 시작';
 
   @override
+  String get liveActivityDisabledTitle => '실시간 현황이 꺼져 있어요';
+
+  @override
+  String get liveActivityDisabledBody =>
+      '잠금화면에 말씀을 표시하려면 실시간 현황을 허용해 주세요.\n\n설정 → 말씀 동행 → 실시간 현황 → 허용';
+
+  @override
+  String get liveActivityDisabledOpenSettings => '설정 열기';
+
+  @override
   String get menu => '메뉴';
 
   @override
   String get menuHealthPermission => '동작 및 피트니스 권한';
+
+  @override
+  String get menuHealthPermissionWarning =>
+      '설정 앱에서 권한을 변경하면 iOS 정책에 의해 앱이 자동으로 재시작됩니다.\n\n설정으로 이동하시겠습니까?';
 
   @override
   String get menuHealthPermissionDesc => '걸음 수 표시를 위한 ‘동작 및 피트니스’ 권한을 설정합니다.';

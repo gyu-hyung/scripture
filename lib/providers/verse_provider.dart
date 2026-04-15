@@ -50,7 +50,9 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
     return await widgetService.getPinnedVerse();
   }
 
-  Future<void> pinVerse(Verse verse, {String? themeId}) async {
+  /// 말씀 고정 및 Live Activity 시작.
+  /// 반환값: null이면 성공, 'ACTIVITIES_DISABLED'이면 Live Activity 권한 거부.
+  Future<String?> pinVerse(Verse verse, {String? themeId}) async {
     state = const AsyncValue.loading();
     final widgetService = ref.read(widgetServiceProvider);
     final liveActivityService = ref.read(liveActivityServiceProvider);
@@ -58,13 +60,12 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
     await widgetService.pinVerse(verse, themeId: themeId);
     final resolvedTheme = themeId ?? await widgetService.getCurrentThemeId();
 
-    // UI를 먼저 업데이트하고 세션은 비동기로 시작
-    // (iOS 권한 팝업 대기 중 로딩이 길어지는 문제 방지)
+    // UI를 먼저 업데이트
     state = AsyncValue.data(verse);
     ref.read(isPinnedProvider.notifier).refresh();
 
-    // 세션 시작 (Live Activity) — fire-and-forget
-    liveActivityService.startSession(verse, resolvedTheme);
+    // 세션 시작 (Live Activity)
+    return await liveActivityService.startSession(verse, resolvedTheme);
   }
 
   Future<void> unpinVerse() async {
@@ -85,13 +86,13 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
     await liveActivityService.stopSession();
   }
 
-  Future<void> restartSession() async {
+  Future<String?> restartSession() async {
     final verse = state.value;
-    if (verse == null) return;
+    if (verse == null) return null;
     final widgetService = ref.read(widgetServiceProvider);
     final liveActivityService = ref.read(liveActivityServiceProvider);
     final themeId = await widgetService.getCurrentThemeId();
-    await liveActivityService.startSession(verse, themeId);
+    return await liveActivityService.startSession(verse, themeId);
   }
 
   void refresh() => ref.invalidateSelf();

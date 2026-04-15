@@ -38,6 +38,10 @@ class ScriptureApp extends StatelessWidget {
         // Locale('ar'),
       ],
       home: const SplashScreen(),
+      // iOS 설정에서 권한 변경 후 앱 재시작 시 전달되는 route 처리
+      onUnknownRoute: (_) => MaterialPageRoute(
+        builder: (_) => const SplashScreen(),
+      ),
     );
   }
 }

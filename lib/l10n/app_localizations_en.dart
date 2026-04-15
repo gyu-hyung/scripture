@@ -235,10 +235,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startSession => 'Start Session';
 
   @override
+  String get liveActivityDisabledTitle => 'Live Activities Disabled';
+
+  @override
+  String get liveActivityDisabledBody =>
+      'To display verses on the lock screen, please enable Live Activities.\n\nSettings → Scripture Companion → Live Activities → Allow';
+
+  @override
+  String get liveActivityDisabledOpenSettings => 'Open Settings';
+
+  @override
   String get menu => 'Menu';
 
   @override
   String get menuHealthPermission => 'Motion & Fitness Permission';
+
+  @override
+  String get menuHealthPermissionWarning =>
+      'Changing permissions in the Settings app will automatically restart this app due to iOS policy.\n\nWould you like to open Settings?';
 
   @override
   String get menuHealthPermissionDesc =>
