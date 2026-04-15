@@ -330,39 +330,70 @@ class WidgetThemeBottomSheet extends ConsumerStatefulWidget {
 class _WidgetThemeBottomSheetState extends ConsumerState<WidgetThemeBottomSheet>
     with TickerProviderStateMixin {
   WidgetTheme _selectedTheme = WidgetTheme.modernDark;
-  late AnimationController _bottomSheetController;
+  late AnimationController _sheetTransitionController;
 
   @override
   void initState() {
     super.initState();
-    _bottomSheetController = AnimationController(
+    _sheetTransitionController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 450),
       reverseDuration: const Duration(milliseconds: 300),
     );
   }
 
   @override
   void dispose() {
-    _bottomSheetController.dispose();
+    _sheetTransitionController.dispose();
     super.dispose();
   }
 
-  // 바텀시트 내 소프트 프롬프트 단계 거쳐 세션 시작
-  Future<void> _startSession() async {
-    // 권한 요청 시도 (이미 허용한 경우 바로 다음 단계로)
-    if (mounted) {
-      await ref
-          .read(liveActivityServiceProvider)
-          .requestMotionFitnessPermission();
-    }
+  // 소프트 프롬프트를 네이티브 바텀시트로 표시 → 세션 시작
+  Future<void> _showSoftPromptAndStart() async {
+    final theme = Theme.of(context);
+
+    // 이전 애니메이션 상태 정리
+    _sheetTransitionController.reset();
+
+    // 애니메이션 시작 전 content를 미리 빌드하여 프레임 드롭 방지
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final sheetContent = RepaintBoundary(
+      child: Material(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        clipBehavior: Clip.hardEdge,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(24, 20, 24, bottomPadding + 16),
+          child: Builder(
+            builder: (sheetContext) => SoftPromptContent(
+              onConfirm: () => Navigator.of(sheetContext).pop(true),
+              onCancel: () => Navigator.of(sheetContext).pop(false),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      transitionAnimationController: _sheetTransitionController,
+      builder: (_) => sheetContent,
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    await ref
+        .read(liveActivityServiceProvider)
+        .requestMotionFitnessPermission();
 
     final result = await ref
         .read(pinnedVerseProvider.notifier)
         .pinVerse(widget.verse, themeId: _selectedTheme.id);
 
     if (!mounted) return;
-    Navigator.of(context).pop(true); // 바텀시트 닫기 및 세션 활성화 상태 반환
+    Navigator.of(context).pop(true); // 테마 바텀시트 닫기 및 세션 활성화 상태 반환
 
     if (result == 'ACTIVITIES_DISABLED' && context.mounted) {
       _showLiveActivityDisabledDialog(context);
@@ -490,93 +521,8 @@ class _WidgetThemeBottomSheetState extends ConsumerState<WidgetThemeBottomSheet>
       borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       child: Container(
         color: theme.colorScheme.surface,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            // [Fix] 기존 테마 선택 시트 내용: 스르륵 올라올 때 뒤로 살짝 물러나는 효과 (레이어드 UI)
-            AnimatedBuilder(
-              animation: _bottomSheetController,
-              builder: (context, child) {
-                final scale = 1.0 - (0.04 * _bottomSheetController.value);
-                final opacity = 1.0 - (0.5 * _bottomSheetController.value);
-                return Transform.scale(
-                  scale: scale,
-                  alignment: Alignment.topCenter,
-                  child: Opacity(
-                    opacity: opacity,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(24, 16, 24, bottomPadding + 16),
-                      child: _buildThemeSelectionStep(theme),
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            // 스르륵 올라올 때 배경을 살짝 어둡게 (딤 효과)
-            AnimatedBuilder(
-              animation: _bottomSheetController,
-              builder: (context, child) {
-                if (_bottomSheetController.value == 0) {
-                  return const SizedBox.shrink();
-                }
-                return Positioned.fill(
-                  child: GestureDetector(
-                    onTap: () => _bottomSheetController.reverse(),
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      color: Colors.black.withValues(
-                        alpha: 0.6 * _bottomSheetController.value,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            // 그 위에 스르륵 올라오는 시작하기 시트 (SoftPromptContent)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 1),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: _bottomSheetController,
-                  curve: Curves.easeOutCubic,
-                  reverseCurve: Curves.easeInCubic,
-                )),
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(24, 20, 24, bottomPadding + 16),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
-                        blurRadius: 16,
-                        offset: const Offset(0, -4),
-                      ),
-                    ],
-                  ),
-                  child: SoftPromptContent(
-                    onConfirm: () async {
-                      if (mounted) await _startSession();
-                    },
-                    onCancel: () {
-                      HapticFeedback.lightImpact();
-                      _bottomSheetController.reverse();
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        padding: EdgeInsets.fromLTRB(24, 16, 24, bottomPadding + 16),
+        child: _buildThemeSelectionStep(theme),
       ),
     );
   }
@@ -676,7 +622,7 @@ class _WidgetThemeBottomSheetState extends ConsumerState<WidgetThemeBottomSheet>
           child: ElevatedButton(
             onPressed: () {
               HapticFeedback.mediumImpact();
-              _bottomSheetController.forward();
+              _showSoftPromptAndStart();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.colorScheme.primary,

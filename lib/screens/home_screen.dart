@@ -167,7 +167,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           isDismissible: true,
-          enableDrag: true,
+          enableDrag: false,
           builder: (_) => WidgetThemeBottomSheet(verse: verse),
         );
         // 바텀시트에서 동행 시작버튼을 최종적으로 누른 경우에만 세션 활성화 및 플래그 저장
@@ -296,7 +296,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   verse: verse,
                   theme: theme,
                   color: color,
-                  onTap: () => _navigateToChapter(verse),
+                  onTap: () => {
+                    HapticFeedback.mediumImpact(),
+                    _navigateToChapter(verse),
+                  },
                 );
               },
             ),
