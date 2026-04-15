@@ -32,7 +32,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkSessionActive();
+
+    // 엔진 및 네이티브 채널 안정화 후 첫 체크 (다른 프리미엄 앱들의 방식)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) _checkSessionActive();
+      });
+    });
   }
 
   @override
@@ -54,7 +60,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Future<void> _checkSessionActive() async {
     try {
       if (!mounted) return;
-      final active = await ref.read(liveActivityServiceProvider).isSessionActive;
+      final active = await ref
+          .read(liveActivityServiceProvider)
+          .isSessionActive;
       if (mounted) setState(() => _isSessionActive = active);
     } catch (_) {
       // MethodChannel 호출 실패 시 무시
@@ -74,44 +82,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  void _showLiveActivityDisabledDialog() {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          l10n.liveActivityDisabledTitle,
-          style: GoogleFonts.gowunBatang(
-            fontWeight: FontWeight.w800,
-            fontSize: 17,
-          ),
-        ),
-        content: Text(
-          l10n.liveActivityDisabledBody,
-          style: GoogleFonts.gowunBatang(
-            fontSize: 14,
-            height: 1.6,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(l10n.softPromptCancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              launchUrl(Uri.parse('app-settings:'));
-            },
-            child: Text(l10n.liveActivityDisabledOpenSettings),
-          ),
-        ],
-      ),
-    );
-  }
+  // Future<void> _checkSessionActive() async {
+  //   try {
+  //     if (!mounted) return;
+  //     final active = await ref.read(liveActivityServiceProvider).isSessionActive;
+  //     if (mounted) setState(() => _isSessionActive = active);
+  //   } catch (_) {
+  //     // MethodChannel 호출 실패 시 무시
+  //   }
+  // }
+
+  // void _navigateToChapter(Verse verse) {
+  //   Navigator.of(context).push(
+  //     MaterialPageRoute(
+  //       builder: (_) => ChapterScreen(
+  //         bookId: verse.bookId,
+  //         bookName: verse.bookName ?? verse.bookAbbreviation ?? '',
+  //         chapter: verse.chapter,
+  //         highlightVerse: verse.verse,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   /// 말씀이 없을 때 요한복음 1:1을 자동 고정
   Future<void> _pinDefaultVerse() async {
@@ -131,15 +123,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
     // 최초 실행 여부 확인 → 한 번도 설정한 적 없으면 테마 바텀시트 표시
     final prefs = await SharedPreferences.getInstance();
-    final hasLaunched = prefs.getBool(AppConstants.keyHasLaunchedBefore) ?? false;
+    final hasLaunched =
+        prefs.getBool(AppConstants.keyHasLaunchedBefore) ?? false;
 
     if (!hasLaunched) {
-      // 플래그 저장 (중복 표시 방지)
-      await prefs.setBool(AppConstants.keyHasLaunchedBefore, true);
-
       final verse = ref.read(pinnedVerseProvider).value;
       if (verse != null && mounted) {
-        await showModalBottomSheet<void>(
+        final started = await showModalBottomSheet<bool>(
           context: context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
@@ -147,10 +137,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           enableDrag: true,
           builder: (_) => WidgetThemeBottomSheet(verse: verse),
         );
-        // 바텀시트가 닫힌 뒤 세션 활성 상태 갱신 (햅틱과 함께)
-        if (mounted) {
+        // 바텀시트에서 동행 시작버튼을 최종적으로 누른 경우에만 세션 활성화 및 플래그 저장
+        if (mounted && started == true) {
           HapticFeedback.mediumImpact();
           setState(() => _isSessionActive = true);
+          await prefs.setBool(AppConstants.keyHasLaunchedBefore, true);
         }
       }
       return;
@@ -160,13 +151,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     setState(() => _isStarting = true);
     HapticFeedback.mediumImpact();
 
-    final result = await ref.read(pinnedVerseProvider.notifier).restartSession();
-
-    if (result == 'ACTIVITIES_DISABLED' && mounted) {
-      setState(() => _isStarting = false);
-      _showLiveActivityDisabledDialog();
-      return;
-    }
+    await ref.read(pinnedVerseProvider.notifier).restartSession();
 
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
@@ -196,7 +181,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       });
     });
 
-    final showStartButton = !_isSessionActive &&
+    final showStartButton =
+        !_isSessionActive &&
         !_isStarting &&
         Platform.isIOS &&
         pinnedAsync.value != null;
@@ -229,19 +215,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               ),
             ),
           ),
-          IconButton(
-            icon: Icon(
-              Icons.menu_rounded,
-              color: color.withValues(alpha: 0.6),
-              size: 22,
-            ),
-            tooltip: l10n.menu,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const MenuScreen()),
-              );
-            },
-          ),
           const SizedBox(width: 4),
         ],
       ),
@@ -251,13 +224,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             // 말씀 콘텐츠 (항상 화면 중앙)
             pinnedAsync.when(
               loading: () => Center(
-                child:
-                    CircularProgressIndicator(color: color, strokeWidth: 2),
+                child: CircularProgressIndicator(color: color, strokeWidth: 2),
               ),
               error: (e, _) => Center(
-                child: Text(
-                  l10n.errorMsg(e.toString()),
-                  style: TextStyle(color: theme.colorScheme.error),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.errorMsg(e.toString()),
+                      style: TextStyle(
+                        color: theme.colorScheme.error,
+                        fontSize: 13,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () =>
+                          ref.read(pinnedVerseProvider.notifier).refresh(),
+                      child: const Text('다시 시도'),
+                    ),
+                  ],
                 ),
               ),
               data: (verse) {
@@ -267,7 +254,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   });
                   return Center(
                     child: CircularProgressIndicator(
-                        color: color, strokeWidth: 2),
+                      color: color,
+                      strokeWidth: 2,
+                    ),
                   );
                 }
                 return _PinnedVerseCenter(
@@ -339,12 +328,14 @@ class _StartSessionButton extends StatelessWidget {
           ),
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
-            transitionBuilder: (child, animation) => ScaleTransition(
-              scale: animation,
-              child: child,
-            ),
+            transitionBuilder: (child, animation) =>
+                ScaleTransition(scale: animation, child: child),
             child: isStarting
-                ? const Icon(Icons.check_rounded, key: ValueKey('check'), size: 28)
+                ? const Icon(
+                    Icons.check_rounded,
+                    key: ValueKey('check'),
+                    size: 28,
+                  )
                 : Text(
                     l10n.startSession,
                     key: const ValueKey('text'),
@@ -405,8 +396,10 @@ class _PinnedVerseCenter extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(20),

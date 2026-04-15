@@ -20,8 +20,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A0A00002A0A00002A0A00002 /* ScriptureActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00001A0A00001A0A00001 /* ScriptureActivityAttributes.swift */; };
 		A0A00004A0A00004A0A00004 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00003A0A00003A0A00003 /* LiveActivityManager.swift */; };
-		A0A00006A0A00006A0A00006 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00005A0A00005A0A00005 /* HealthKitService.swift */; };
-		A0A00008A0A00008A0A00008 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0A00007A0A00007A0A00007 /* HealthKit.framework */; };
+		A0A00006A0A00006A0A00006 /* MotionFitnessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00005A0A00005A0A00005 /* MotionFitnessService.swift */; };
 		A0A00010A0A00010A0A00010 /* ScriptureWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00009A0A00009A0A00009 /* ScriptureWidget.swift */; };
 		A0A00012A0A00012A0A00012 /* ScriptureWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00011A0A00011A0A00011 /* ScriptureWidgetBundle.swift */; };
 		A0A00013A0A00013A0A00013 /* ScriptureActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A00001A0A00001A0A00001 /* ScriptureActivityAttributes.swift */; };
@@ -103,8 +102,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A0A00001A0A00001A0A00001 /* ScriptureActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureWidget/ScriptureActivityAttributes.swift; sourceTree = SOURCE_ROOT; };
 		A0A00003A0A00003A0A00003 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
-		A0A00005A0A00005A0A00005 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
-		A0A00007A0A00007A0A00007 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		A0A00005A0A00005A0A00005 /* MotionFitnessService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionFitnessService.swift; sourceTree = "<group>"; };
 		A0A00009A0A00009A0A00009 /* ScriptureWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureWidget/ScriptureWidget.swift; sourceTree = SOURCE_ROOT; };
 		A0A00011A0A00011A0A00011 /* ScriptureWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureWidget/ScriptureWidgetBundle.swift; sourceTree = SOURCE_ROOT; };
 		F08A6A464953145E0EDC656F /* Pods-ScriptureWidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScriptureWidgetExtension.debug.xcconfig"; path = "Target Support Files/Pods-ScriptureWidgetExtension/Pods-ScriptureWidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -151,7 +149,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A0A00008A0A00008A0A00008 /* HealthKit.framework in Frameworks */,
 				417381DD0F8D6AB1D5D73E68 /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -180,7 +177,6 @@
 			children = (
 				02C492782F736318004F026F /* WidgetKit.framework */,
 				02C4927A2F736318004F026F /* SwiftUI.framework */,
-				A0A00007A0A00007A0A00007 /* HealthKit.framework */,
 				76AE00E6B09B389B0C236663 /* Pods_Runner.framework */,
 				69295BAC6939DBBAF3B9F96A /* Pods_RunnerTests.framework */,
 				6A761AE75A3EB937AF6A8487 /* Pods_ScriptureWidgetExtension.framework */,
@@ -237,7 +233,7 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				A0A00003A0A00003A0A00003 /* LiveActivityManager.swift */,
-				A0A00005A0A00005A0A00005 /* HealthKitService.swift */,
+				A0A00005A0A00005A0A00005 /* MotionFitnessService.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -541,7 +537,7 @@
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				A0A00002A0A00002A0A00002 /* ScriptureActivityAttributes.swift in Sources */,
 				A0A00004A0A00004A0A00004 /* LiveActivityManager.swift in Sources */,
-				A0A00006A0A00006A0A00006 /* HealthKitService.swift in Sources */,
+				A0A00006A0A00006A0A00006 /* MotionFitnessService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

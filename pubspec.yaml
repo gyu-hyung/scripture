@@ -48,6 +48,7 @@ dependencies:
   image_picker: ^1.1.2
   font_awesome_flutter: ^11.0.0
   url_launcher: ^6.3.1
+  webview_flutter: ^4.10.0
 
 # Temporary workaround for iOS/macOS crash caused by `path_provider_foundation`
 # 2.6.0's new Dart/FFI implementation requiring native assets (`objective_c`).

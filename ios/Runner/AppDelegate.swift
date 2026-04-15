@@ -12,12 +12,22 @@ import ActivityKit
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         GeneratedPluginRegistrant.register(with: self)
+        let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+        
+        // super.application 이후에 채널을 설정하여 window가 확보된 상태에서 진행
         setupLiveActivityChannel()
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+        
+        return result
     }
 
     private func setupLiveActivityChannel() {
-        guard let controller = window?.rootViewController as? FlutterViewController else { return }
+        // 백그라운드(Headless) 실행 시에는 window가 nil일 수 있으므로 무한 재시도를 하지 않습니다.
+        guard let controller = window?.rootViewController as? FlutterViewController else {
+            #if DEBUG
+            NSLog("[LiveActivityDebug] window.rootViewController is nil (Headless or background launch). Skipping channel setup.")
+            #endif
+            return
+        }
 
         let channel = FlutterMethodChannel(
             name: "com.jgh.scripture.liveActivity",
@@ -147,7 +157,7 @@ import ActivityKit
                 result(FlutterError(code: "NO_APP_GROUP", message: "App Group container not found", details: nil))
             }
 
-        case "requestHealthKitPermission":
+        case "requestMotionFitnessPermission":
             // 사용자가 명시적으로 권한을 요청하는 경우 (주로 말씀 선택 후)
             // 시스템 팝업을 띄워보고, 이미 선택했다면 아무것도 하지 않음 (설정창 강제 이동 제거)
             MotionFitnessService.shared.requestAuthorization { _ in

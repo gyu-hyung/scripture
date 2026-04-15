@@ -65,7 +65,12 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
     ref.read(isPinnedProvider.notifier).refresh();
 
     // 세션 시작 (Live Activity)
-    return await liveActivityService.startSession(verse, resolvedTheme);
+    try {
+      return await liveActivityService.startSession(verse, resolvedTheme);
+    } catch (e) {
+      print('[PinnedVerseNotifier] pinVerse session start failed: $e');
+      return null;
+    }
   }
 
   Future<void> unpinVerse() async {
@@ -92,7 +97,12 @@ class PinnedVerseNotifier extends AsyncNotifier<Verse?> {
     final widgetService = ref.read(widgetServiceProvider);
     final liveActivityService = ref.read(liveActivityServiceProvider);
     final themeId = await widgetService.getCurrentThemeId();
-    return await liveActivityService.startSession(verse, themeId);
+    try {
+      return await liveActivityService.startSession(verse, themeId);
+    } catch (e) {
+      print('[PinnedVerseNotifier] restartSession failed: $e');
+      return null;
+    }
   }
 
   void refresh() => ref.invalidateSelf();

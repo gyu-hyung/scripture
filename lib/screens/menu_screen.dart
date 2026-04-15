@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/providers.dart';
+import 'webview_screen.dart';
 
 class MenuScreen extends ConsumerWidget {
   const MenuScreen({super.key});
@@ -91,9 +92,13 @@ class MenuScreen extends ConsumerWidget {
             title: l10n.menuPrivacyPolicy,
             theme: theme,
             onTap: () {
-              launchUrl(
-                Uri.parse('https://open-robe-add.notion.site/341fdbc833e18058ad7ce2a8cd1222e2'),
-                mode: LaunchMode.externalApplication,
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => WebViewScreen(
+                    url: 'https://open-robe-add.notion.site/341fdbc833e18058ad7ce2a8cd1222e2',
+                    title: l10n.menuPrivacyPolicy,
+                  ),
+                ),
               );
             },
           ),

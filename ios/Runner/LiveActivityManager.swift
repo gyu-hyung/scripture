@@ -11,7 +11,11 @@ class LiveActivityManager {
     public var lastSavedPhotoFilename: String?
 
     func startActivity(verseText: String, verseRef: String, themeId: String, customPhotoFilename: String?, healthKitAuthorized: Bool, completion: (() -> Void)? = nil) {
+        // Live Activity 권한이 꺼져 있으면 조용히 리턴 (다른 프리미엄 앱들처럼 크래시나 강제 팝업 방지)
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            #if DEBUG
+            NSLog("[LiveActivityDebug] Live Activities are disabled. Skipping start.")
+            #endif
             completion?()
             return
         }

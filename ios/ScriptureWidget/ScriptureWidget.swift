@@ -205,19 +205,21 @@ struct ScriptureHomeWidgetView: View {
                 Text(entry.verseText)
                     .font(family == .systemSmall ? .subheadline : .title3)
                     .fontWeight(.medium)
-                    .foregroundColor(styles.text)
+                    .foregroundColor(isPhoto ? .white : styles.text)
                     .lineLimit(family == .systemSmall ? 6 : 8)
                     .minimumScaleFactor(0.7)
                     .fixedSize(horizontal: false, vertical: false)
                     .multilineTextAlignment(.leading)
+                    .shadow(color: isPhoto ? .black.opacity(0.8) : .clear, radius: 2, x: 0, y: 1)
 
                 Spacer()
 
                 Text(entry.reference)
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(styles.accent)
+                    .foregroundColor(isPhoto ? .white.opacity(0.9) : styles.accent)
                     .frame(maxWidth: .infinity, alignment: .trailing)
+                    .shadow(color: isPhoto ? .black.opacity(0.8) : .clear, radius: 2, x: 0, y: 1)
             }
             .padding(16)
         }
@@ -329,7 +331,6 @@ struct ScriptureDynamicDataView: View {
                     .foregroundColor(accentColor)
                     .monospacedDigit()
             }
-            .fixedSize(horizontal: true, vertical: false)
             .frame(width: isHorizontal ? nil : 60)
         } else {
             // 권한 허용 시: 걸음 수
@@ -423,6 +424,7 @@ struct ScriptureLiveActivityLockView: View {
                         .truncationMode(.tail)
                         .shadow(color: isPhoto ? .black.opacity(0.7) : .clear, radius: 1, x: 0, y: 1)
                 }
+                .privacySensitive(false)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
 

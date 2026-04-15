@@ -54,7 +54,7 @@ class LiveActivityService {
   /// Android / iOS 16.2 미만에서는 아무 동작도 하지 않습니다.
   Future<void> requestMotionFitnessPermission() async {
     try {
-      await _channel.invokeMethod<void>('requestHealthKitPermission');
+      await _channel.invokeMethod<void>('requestMotionFitnessPermission');
     } on PlatformException catch (e) {
       print('[LiveActivityService] requestMotionFitnessPermission failed: ${e.message}');
     } on MissingPluginException {

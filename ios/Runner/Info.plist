@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>com.jgh.malsseumdonghaeng.dailyVerse</string>
-	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
@@ -44,6 +40,10 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>걸음 수 데이터를 읽어 말씀과 함께 실시간으로 표시합니다.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>걸음 수 데이터를 동기화하여 실시간 현황에 표시합니다.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

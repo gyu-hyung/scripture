@@ -6,7 +6,8 @@ import Foundation
 class MotionFitnessService {
     static let shared = MotionFitnessService()
 
-    private let pedometer = CMPedometer()
+    // lazy를 통해 실제 필요한 시점에 하드웨어 자원(CMPedometer)에 접근
+    private lazy var pedometer = CMPedometer()
 
     var onStepsUpdate: ((Int) -> Void)?
 
