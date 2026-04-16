@@ -165,6 +165,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0254130E2F90C55F002AF7A2 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				A0A00009A0A00009A0A00009 /* ScriptureWidget.swift */,
+				A0A00011A0A00011A0A00011 /* ScriptureWidgetBundle.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		331C8082294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -209,6 +218,7 @@
 				EEED42223D0AC4608011881C /* Pods */,
 				506C4ED272D210C16A7177FB /* Frameworks */,
 				A0A00001A0A00001A0A00001 /* ScriptureActivityAttributes.swift */,
+				0254130E2F90C55F002AF7A2 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -780,8 +790,13 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jgh.malsseumdonghaeng;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Profile;
@@ -964,9 +979,14 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jgh.malsseumdonghaeng;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -988,8 +1008,13 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jgh.malsseumdonghaeng;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

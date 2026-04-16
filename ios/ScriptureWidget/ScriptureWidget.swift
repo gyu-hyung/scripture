@@ -331,7 +331,7 @@ struct ScriptureDynamicDataView: View {
                     .foregroundColor(accentColor)
                     .monospacedDigit()
             }
-            .frame(width: isHorizontal ? 50 : 40, alignment: .trailing)
+            .frame(width: isHorizontal ? 55 : 45, alignment: .trailing)
         } else {
             // 권한 허용 시: 걸음 수
             if isHorizontal {
