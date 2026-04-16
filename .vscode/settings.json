@@ -1,0 +1,14 @@
+{
+  "files.exclude": {
+    ".claude/**": true,
+    "build/**": true,
+    ".dart_tool/**": true
+  },
+  "search.exclude": {
+    ".claude/**": true,
+    "assets/db/**": true,
+    "build/**": true,
+    ".dart_tool/**": true,
+    "**/*.db": true
+  }
+}
