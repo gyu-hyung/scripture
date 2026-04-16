@@ -248,6 +248,79 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               ),
             ),
           ),
+          if (Platform.isIOS)
+            PopupMenuButton<String>(
+              icon: Icon(
+                Icons.more_vert_rounded,
+                color: color.withValues(alpha: 0.6),
+                size: 22,
+              ),
+              onSelected: (value) async {
+                if (value == 'health_permission') {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      title: Text(
+                        l10n.menuHealthPermission,
+                        style: GoogleFonts.gowunBatang(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 17,
+                        ),
+                      ),
+                      content: Text(
+                        l10n.menuHealthPermissionWarning,
+                        style: GoogleFonts.gowunBatang(
+                          fontSize: 14,
+                          height: 1.6,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.7),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(false),
+                          child: Text(l10n.softPromptCancel),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(true),
+                          child: Text(l10n.liveActivityDisabledOpenSettings),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true && context.mounted) {
+                    await launchUrl(
+                      Uri.parse('app-settings:'),
+                      mode: LaunchMode.externalApplication,
+                    );
+                  }
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem<String>(
+                  value: 'health_permission',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.favorite_rounded,
+                        size: 18,
+                        color: color,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        l10n.menuHealthPermission,
+                        style: GoogleFonts.gowunBatang(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           const SizedBox(width: 4),
         ],
       ),
