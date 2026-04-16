@@ -88,6 +88,67 @@ class MotionFitnessService {
         }
     }
 
+    /// 이번 주(일~토) 날짜별 걸음 수를 조회합니다.
+    func fetchWeeklySteps(completion: @escaping ([[String: Any]]) -> Void) {
+        let calendar = Calendar.current
+        let today = Date()
+
+        // 이번 주 일요일 구하기
+        let weekday = calendar.component(.weekday, from: today) // 1=일, 2=월, ...
+        guard let sunday = calendar.date(byAdding: .day, value: -(weekday - 1), to: calendar.startOfDay(for: today)) else {
+            completion((0..<7).map { i in
+                let d = calendar.date(byAdding: .day, value: i, to: calendar.startOfDay(for: today))!
+                let fmt = ISO8601DateFormatter()
+                fmt.formatOptions = [.withFullDate]
+                fmt.timeZone = TimeZone.current
+                return ["date": fmt.string(from: d), "steps": 0] as [String: Any]
+            })
+            return
+        }
+
+        guard isAvailable, isAuthorized else {
+            let fmt = ISO8601DateFormatter()
+            fmt.formatOptions = [.withFullDate]
+            fmt.timeZone = TimeZone.current
+            let result = (0..<7).map { i -> [String: Any] in
+                let d = calendar.date(byAdding: .day, value: i, to: sunday)!
+                return ["date": fmt.string(from: d), "steps": 0]
+            }
+            completion(result)
+            return
+        }
+
+        let group = DispatchGroup()
+        var results = Array<[String: Any]>(repeating: [:], count: 7)
+        let fmt = ISO8601DateFormatter()
+        fmt.formatOptions = [.withFullDate]
+        fmt.timeZone = TimeZone.current
+
+        for i in 0..<7 {
+            let dayStart = calendar.date(byAdding: .day, value: i, to: sunday)!
+            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+            let dateStr = fmt.string(from: dayStart)
+
+            // 미래 날짜는 건너뛰기
+            if dayStart > today {
+                results[i] = ["date": dateStr, "steps": 0]
+                continue
+            }
+
+            group.enter()
+            let queryEnd = min(dayEnd, Date())
+            pedometer.queryPedometerData(from: dayStart, to: queryEnd) { data, _ in
+                let steps = data?.numberOfSteps.intValue ?? 0
+                results[i] = ["date": dateStr, "steps": steps]
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) {
+            completion(results)
+        }
+    }
+
     func startObserving() {
         guard isAvailable, isAuthorized else { return }
 

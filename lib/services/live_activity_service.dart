@@ -73,6 +73,21 @@ class LiveActivityService {
     }
   }
 
+  /// 이번 주(일~토) 날짜별 걸음 수를 조회합니다.
+  Future<List<Map<String, dynamic>>> fetchWeeklySteps() async {
+    try {
+      final result = await _channel.invokeListMethod<Map>('fetchWeeklySteps');
+      if (result == null) return [];
+      return result
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } on PlatformException {
+      return [];
+    } on MissingPluginException {
+      return [];
+    }
+  }
+
   @Deprecated('Use requestMotionFitnessPermission()')
   Future<void> requestHealthKitPermission() => requestMotionFitnessPermission();
 }

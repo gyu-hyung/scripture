@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -27,6 +28,7 @@ class WidgetService {
     await prefs.setBool(AppConstants.keyIsPinned, true);
     await prefs.setInt(AppConstants.keyPinnedVerseId, verse.id);
     await _saveCurrentVerse(verse);
+    await _recordVerseHistory(verse);
     await _updateNativeWidget(verse, isPinned: true, themeId: currentTheme);
   }
 
@@ -88,6 +90,8 @@ class WidgetService {
       AppConstants.keyLastUpdateDate,
       DateTime.now().toIso8601String(),
     );
+
+    await _recordVerseHistory(verse);
 
     // 고정 말씀이 없으면 위젯도 갱신
     final pinned = await isPinned();
@@ -160,6 +164,23 @@ class WidgetService {
   Future<String> getCurrentThemeId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(AppConstants.keyBackgroundStyle) ?? AppConstants.themeModernDark;
+  }
+
+  Future<void> _recordVerseHistory(Verse verse) async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final historyJson =
+        prefs.getString(AppConstants.keyVerseHistory) ?? '{}';
+    final history = Map<String, dynamic>.from(jsonDecode(historyJson));
+    history[today] = {
+      'ref': verse.reference,
+      'text': verse.text,
+    };
+    final cutoff = DateTime.now().subtract(const Duration(days: 7));
+    history.removeWhere(
+        (k, _) => DateTime.parse(k).isBefore(cutoff));
+    await prefs.setString(
+        AppConstants.keyVerseHistory, jsonEncode(history));
   }
 
   Future<bool> _needsUpdate() async {

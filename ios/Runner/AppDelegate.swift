@@ -141,6 +141,11 @@ import ActivityKit
                     result(FlutterError(code: "NO_APP_GROUP", message: "App Group container not found", details: nil))
                 }
 
+            case "fetchWeeklySteps":
+                MotionFitnessService.shared.fetchWeeklySteps { data in
+                    result(data)
+                }
+
             case "requestMotionFitnessPermission":
                 MotionFitnessService.shared.requestAuthorization { _ in
                     result(nil)

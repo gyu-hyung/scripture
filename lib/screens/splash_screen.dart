@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/bible_provider.dart';
-import 'home_screen.dart';
+import 'home_pager_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -96,7 +96,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 300),
-        pageBuilder: (_, __, ___) => const HomeScreen(),
+        pageBuilder: (_, __, ___) => const HomePagerScreen(),
         transitionsBuilder: (_, animation, __, child) {
           return FadeTransition(
             opacity: animation,
